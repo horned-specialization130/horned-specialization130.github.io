@@ -624,6 +624,50 @@ function seedDeals(){
 {id:uid(),company:"汉启电子商务",project:"汉银广场",district:"金融城",area:600,type:"搬迁",rent:"130",industry:"TMT",floor:"",note:"带装修"},
 {id:uid(),company:"高乐氏",project:"星寰中心T1",district:"越秀",area:700,type:"新设",rent:"135",industry:"批发零售",floor:"27F",note:""}
   ];
+  DEAL_PATCHES.forEach(p=>p.rows.forEach(r=>deals.push(Object.assign({id:uid()},r))));
+  markPatchesApplied();
+}
+
+/* ---------- 成交台账增量补丁 ----------
+   已有用户（本地/云端已存数据）不会重跑 seed，靠这里按批次追加新记录。
+   同批次只应用一次；同企业+项目+面积已存在则跳过，避免重复。 */
+const DEAL_PATCH_KEY="songguo_deal_patches_v1";
+const DEAL_PATCHES=[
+  { batch:"2026-08-04-a", rows:[
+    {company:"此刻此刻传媒",project:"君超中心",district:"金融城",area:550,type:"新设",rent:"145",industry:"文化娱乐",floor:"32F",note:""},
+    {company:"直玖航空",project:"君超中心",district:"金融城",area:400,type:"搬迁",rent:"135",industry:"交通物流",floor:"13F",note:""},
+    {company:"新航道",project:"万菱国际中心",district:"天河商圈",area:630,type:"扩租",rent:"150",industry:"教育",floor:"",note:""},
+    {company:"东吴证券",project:"粤海金融大厦",district:"珠江新城",area:150,type:"搬迁",rent:"180",industry:"金融业",floor:"18F",note:"包装修"},
+    {company:"北欧可持续发展促进协会",project:"凯华国际中心",district:"珠江新城",area:2116,type:"",rent:"190",industry:"机关政要",floor:"49F",note:"整层"},
+    {company:"广州致远私募证券投资",project:"周大福金融中心",district:"珠江新城",area:1600,type:"搬迁",rent:"210",industry:"金融业",floor:"66F",note:""},
+    {company:"中国信托商业银行",project:"合景国际金融广场（IFP）",district:"珠江新城",area:2600,type:"续租",rent:"145",industry:"金融业",floor:"",note:""}
+  ]}
+];
+function markPatchesApplied(){
+  try{ localStorage.setItem(DEAL_PATCH_KEY,JSON.stringify(DEAL_PATCHES.map(p=>p.batch))); }catch(e){}
+}
+function dealKey(d){
+  return [(d.company||"").trim(),(d.project||"").trim(),String(d.area==null?"":d.area).trim()].join("|");
+}
+function applyDealPatches(){
+  let applied=[];
+  try{ applied=JSON.parse(localStorage.getItem(DEAL_PATCH_KEY)||"[]"); }catch(e){ applied=[]; }
+  if(!Array.isArray(applied)) applied=[];
+  const exist=new Set(deals.map(dealKey));
+  let added=0;
+  DEAL_PATCHES.forEach(p=>{
+    if(applied.indexOf(p.batch)>=0) return;
+    p.rows.forEach(r=>{
+      const k=dealKey(r);
+      if(exist.has(k)) return;
+      deals.push(Object.assign({id:uid()},r));
+      exist.add(k); added++;
+    });
+    applied.push(p.batch);
+  });
+  try{ localStorage.setItem(DEAL_PATCH_KEY,JSON.stringify(applied)); }catch(e){}
+  if(added) saveDeals();
+  return added;
 }
 
 /* ---------- building database from 松果运营 2026 distribution map ---------- */
@@ -1971,6 +2015,8 @@ async function boot(){
   fillDealIndustry();
   const fd=document.getElementById("fu_date"); if(fd) fd.value=iso(Date.now());
   _booting=false;
+  // 云端数据拉取完成后再补增量记录，确保新增能推回云端且不与远端重复
+  if(applyDealPatches()>0){ renderDeals(); fillDealIndustry(); }
   if(syncCfg.mode==="cloud" && cfgComplete() && sbClient()) subscribeRemote();
 }
 document.getElementById("btnSync").onclick=openSync;
