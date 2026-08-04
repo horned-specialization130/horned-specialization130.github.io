@@ -290,6 +290,7 @@
       <button class="btn-ghost" id="btnSync"><span id="syncDot" class="dot"></span><span id="syncText">本地模式</span></button>
       <button class="btn-ghost" id="btnImport">导入 JSON</button>
       <button class="btn-ghost" id="btnExport">导出备份</button>
+      <button class="btn-ghost" id="btnExportAllXls">导出Excel</button>
       <button class="btn-primary" id="btnAdd">+ 新增询盘</button>
       <input type="file" id="fileInput" accept="application/json" class="hidden" />
     </div>
@@ -308,6 +309,7 @@
       <select id="fIndustry"><option value="">全部行业</option></select>
       <input type="text" class="search" id="fSearch" placeholder="搜索客户 / 公司 / 备注…" />
       <div class="spacer"></div>
+      <button class="btn-ghost" id="btnExportInquiries">导出询盘Excel</button>
     </div>
 
     <div id="board" class="board"></div>
@@ -320,6 +322,7 @@
       <select id="bRegion"><option value="">全部片区</option><option>珠江新城</option><option>金融城</option><option>琶洲</option><option>创意园</option><option>天河商圈</option><option>越秀</option><option>番禺万博</option><option>科学城</option><option>五山/元岗</option></select>
       <button class="btn-primary" id="btnAddBuilding">+ 新增楼盘</button>
       <button class="btn-ghost" id="btnAddDistrict">+ 新增片区</button>
+      <button class="btn-ghost" id="btnExportBuildings">导出楼盘Excel</button>
     </div>
     <div id="districts" class="districts"></div>
   </div>
@@ -337,6 +340,7 @@
       <select id="dfIndustry"><option value="">全部行业</option></select>
       <input type="text" class="search" id="dfSearch" placeholder="搜索企业 / 项目…" />
       <div class="spacer"></div>
+      <button class="btn-ghost" id="btnExportDeals">导出台账Excel</button>
       <button class="btn-primary" id="btnAddDeal">+ 新增成交</button>
     </div>
     <div class="table-wrap" id="dealsTableWrap">
@@ -1676,6 +1680,59 @@ function importJSON(file){
 }
 
 
+/* ---------- 导出 Excel（SpreadsheetML 2003，零依赖 · 离线可用） ---------- */
+function xlsEsc(s){ return String(s==null?"":s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+function xlsCell(v){
+  if(typeof v==="number") return '<Cell><Data ss:Type="Number">'+v+'</Data></Cell>';
+  const s=String(v==null?"":v); const t=s.trim();
+  if(t!=="" && /^-?\d+(\.\d+)?$/.test(t)) return '<Cell><Data ss:Type="Number">'+t+'</Data></Cell>';
+  return '<Cell><Data ss:Type="String">'+xlsEsc(s)+'</Data></Cell>';
+}
+function xlsRow(arr){ return '<Row>'+arr.map(xlsCell).join("")+'</Row>'; }
+function xlsBuild(name,headers,rows){
+  const nm=xlsEsc(name).slice(0,31);
+  return '<Worksheet ss:Name="'+nm+'"><Table>'+xlsRow(headers)+rows.map(r=>xlsRow(r)).join("")+'</Table></Worksheet>';
+}
+function xlsDownload(filename,sheets){
+  const wb='<?xml version="1.0" encoding="UTF-8"?>\n<?mso-application progid="Excel.Sheet"?>\n'+
+    '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">\n'+
+    sheets.map(s=>xlsBuild(s.name,s.headers,s.rows)).join("\n")+'\n</Workbook>';
+  const blob=new Blob([wb],{type:"application/vnd.ms-excel"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+const INQ_HEADERS=["客户/公司","联系人","行业","面积需求㎡","预算元/㎡/月","来源","阶段","片区偏好","期望时间","下次跟进","备注","跟进次数","创建日期","更新日期"];
+const DEAL_HEADERS=["企业","项目","商务区","面积㎡","类型","租金","行业","楼层","备注"];
+const B_HEADERS=["片区","楼盘名称","子区/位置","租金参考","租金底价","免租期","管理费","楼宇等级","装修","状态","面积段","空调","停车","地铁","押金","备注"];
+function inquiryRows(){ return data.map(x=>[
+  x.company||"",x.contact||"",x.industry||"",x.area!=null?x.area:"",x.budget!=null?x.budget:"",
+  x.source||"",x.stage||"",(x.regions||[]).join("、"),x.expect||"",x.next||"",x.remark||"",
+  (x.followups||[]).length,x.createdAt?iso(x.createdAt):"",x.updatedAt?iso(x.updatedAt):""
+]); }
+function dealRows(){ return deals.map(d=>[
+  d.company||"",d.project||"",d.district||"",d.area!=null?d.area:"",d.type||"",
+  d.rent||"",d.industry||"",d.floor||"",d.note||""
+]); }
+function buildingRows(){
+  const rows=[]; const ds=DISTRICTS.length?DISTRICTS:Object.keys(ALLBUILDINGS);
+  for(const d of ds){ for(const b of (ALLBUILDINGS[d]||[])){
+    const m=Object.assign({},b,getBEdits(d,b.name));
+    rows.push([d,m.name||"",m.sub||"",m.rent_quote||"",m.rent_floor||"",m.free||"",m.mgmt||"",
+      m.grade||"",m.reno||"",m.status||"",m.area||"",m.ac||"",m.parking||"",m.metro||"",m.deposit||"",m.note||""]);
+  } }
+  return rows;
+}
+function exportXls(which){
+  const ts=iso(Date.now()); const sheets=[];
+  if(which==="inquiries"||which==="all") sheets.push({name:"询盘管理",headers:INQ_HEADERS,rows:inquiryRows()});
+  if(which==="deals"||which==="all") sheets.push({name:"成交台账",headers:DEAL_HEADERS,rows:dealRows()});
+  if(which==="buildings"||which==="all") sheets.push({name:"楼盘库",headers:B_HEADERS,rows:buildingRows()});
+  if(!sheets.length) return;
+  const fn=(which==="all"?"工作台全量_":"")+ts+".xls";
+  xlsDownload(fn,sheets);
+}
+
 /* ---------- events ---------- */
 document.getElementById("btnAdd").onclick=()=>openForm();
 document.getElementById("btnCancel").onclick=closeForm;
@@ -1685,6 +1742,10 @@ document.getElementById("btnEdit").onclick=()=>{ const id=detailId; closeDetail(
 document.getElementById("btnCloseDetail").onclick=closeDetail;
 document.getElementById("btnAddFu").onclick=addFollowup;
 document.getElementById("btnExport").onclick=exportJSON;
+document.getElementById("btnExportAllXls").onclick=()=>exportXls("all");
+document.getElementById("btnExportInquiries").onclick=()=>exportXls("inquiries");
+document.getElementById("btnExportDeals").onclick=()=>exportXls("deals");
+document.getElementById("btnExportBuildings").onclick=()=>exportXls("buildings");
 document.getElementById("btnImport").onclick=()=>document.getElementById("fileInput").click();
 document.getElementById("fileInput").onchange=e=>{ if(e.target.files[0]) importJSON(e.target.files[0]); e.target.value=""; };
 document.querySelectorAll("#f_regions input").forEach(c=>c.onchange=syncRegionLabels);
