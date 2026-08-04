@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>选址顾问工作台 · 询盘管理</title>
+<meta name="theme-color" content="#E8541D" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="选址工作台" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="icon.svg" />
+<style>
+  :root{
+    --orange:#E8541D;
+    --orange-d:#cf4710;
+    --orange-soft:#FCEDE5;
+    --ink:#1C1C1E;
+    --ink-2:#2C2C2E;
+    --gray-900:#1C1C1E;
+    --gray-700:#4A4A4F;
+    --gray-500:#8A8A90;
+    --gray-300:#E2E2E6;
+    --gray-100:#F4F4F6;
+    --paper:#F7F7F9;
+    --bg:#FFFFFF;
+    --line:#ECECF0;
+    --ok:#1F9D57;
+    --ok-soft:#E7F6EE;
+    --warn:#B7791F;
+    --warn-soft:#FBF1DD;
+    --danger:#D64545;
+    --danger-soft:#FBE9E9;
+    --radius-lg:14px;
+    --radius:11px;
+    --radius-sm:8px;
+    --shadow-sm:0 1px 2px rgba(20,20,30,.05),0 1px 3px rgba(20,20,30,.04);
+    --shadow:0 2px 8px rgba(20,20,30,.06),0 1px 3px rgba(20,20,30,.04);
+    --shadow-lg:0 12px 40px rgba(20,20,30,.16);
+    --ring:0 0 0 3px rgba(232,84,29,.18);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 28px 72px;}
+
+  /* Header */
+  header.top{
+    position:sticky;top:0;z-index:40;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    margin:0 -28px 22px;padding:14px 28px;
+    background:rgba(255,255,255,.86);
+    backdrop-filter:saturate(180%) blur(10px);
+    -webkit-backdrop-filter:saturate(180%) blur(10px);
+    border-bottom:1px solid var(--line);
+    box-shadow:0 1px 0 rgba(20,20,30,.03),0 6px 20px rgba(20,20,30,.05);
+  }
+  .brand{display:flex;align-items:center;gap:12px;}
+  .logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--orange),#f0723b);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:17px;box-shadow:0 4px 12px rgba(232,84,29,.30);letter-spacing:.5px;}
+  .brand h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.3px;}
+  .brand .sub{font-size:12px;color:var(--gray-500);margin-top:2px;line-height:1.3;}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;}
+
+  /* Buttons */
+  button{font-family:inherit;cursor:pointer;border:none;border-radius:var(--radius-sm);font-size:13px;padding:9px 14px;transition:.16s ease;font-weight:500;}
+  button:focus-visible{outline:none;box-shadow:var(--ring);}
+  .btn-primary{background:var(--orange);color:#fff;font-weight:600;box-shadow:0 2px 8px rgba(232,84,29,.25);}
+  .btn-primary:hover{background:var(--orange-d);transform:translateY(-1px);box-shadow:0 4px 14px rgba(232,84,29,.30);}
+  .btn-primary:active{transform:translateY(0);}
+  .btn-ghost{background:#fff;color:var(--gray-700);border:1px solid var(--line);box-shadow:var(--shadow-sm);}
+  .btn-ghost:hover{background:var(--gray-100);border-color:var(--gray-300);}
+  .btn-sm{padding:7px 12px;font-size:12px;}
+
+  /* Stats */
+  .stats{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:22px;}
+  .stat{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;transition:.16s;}
+  .stat:hover{box-shadow:var(--shadow);transform:translateY(-2px);}
+  .stat::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gray-300);}
+  .stat.ok::before{background:var(--ok);}
+  .stat.warn::before{background:var(--warn);}
+  .stat.alert::before{background:var(--danger);}
+  .stat .num{font-size:26px;font-weight:800;line-height:1;letter-spacing:-.5px;color:var(--ink);}
+  .stat .lbl{font-size:12px;color:var(--gray-500);margin-top:7px;font-weight:500;}
+  .stat.alert .num{color:var(--danger);}
+  .stat.warn .num{color:var(--warn);}
+  .stat.ok .num{color:var(--ok);}
+
+  /* Toolbar */
+  .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow-sm);}
+  .toolbar .seg{display:flex;background:var(--gray-100);border-radius:9px;padding:3px;gap:2px;}
+  .toolbar .seg button{background:transparent;color:var(--gray-700);padding:7px 16px;border-radius:7px;font-weight:600;}
+  .toolbar .seg button.active{background:#fff;color:var(--orange);font-weight:700;box-shadow:var(--shadow-sm);}
+  .field{display:flex;flex-direction:column;gap:3px;}
+  select,input[type=text],input[type=number],input[type=date],textarea{
+    font-family:inherit;font-size:13px;padding:9px 11px;border:1px solid var(--line);border-radius:var(--radius-sm);background:#fff;color:var(--ink);transition:.16s;
+  }
+  select:focus,input:focus,textarea:focus{outline:none;border-color:var(--orange);box-shadow:var(--ring);}
+  input.search{flex:1;min-width:180px;}
+  .toolbar .spacer{flex:1;}
+
+  /* Board */
+  .board{display:grid;grid-template-columns:repeat(7,minmax(168px,1fr));gap:12px;overflow-x:auto;padding-bottom:10px;scrollbar-width:thin;scroll-snap-type:x proximity;}
+  .board::-webkit-scrollbar{height:8px;}
+  .board::-webkit-scrollbar-thumb{background:var(--gray-300);border-radius:8px;}
+  .col{background:var(--gray-100);border:1px solid var(--line);border-radius:var(--radius);padding:12px;min-height:120px;scroll-snap-align:start;}
+  .col h3{font-size:12px;margin:0 0 12px;color:var(--gray-700);display:flex;justify-content:space-between;align-items:center;font-weight:700;letter-spacing:.2px;}
+  .col h3 .cnt{background:#fff;border:1px solid var(--line);border-radius:20px;padding:1px 10px;font-size:11px;color:var(--gray-500);font-weight:600;}
+  .col.deal{background:var(--orange-soft);}
+  .col.lost{background:#F0F0F2;}
+  .card{background:#fff;border-radius:10px;padding:12px;margin-bottom:10px;box-shadow:var(--shadow-sm);cursor:pointer;border-left:3px solid var(--orange);transition:.16s;border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .card:hover{box-shadow:var(--shadow);transform:translateY(-2px);border-left-color:var(--orange-d);}
+  .card .co{font-weight:700;font-size:13px;margin-bottom:5px;color:var(--ink);}
+  .card .meta{font-size:11px;color:var(--gray-500);line-height:1.6;}
+  .card .tag{display:inline-block;background:var(--orange-soft);color:var(--orange);font-size:10px;padding:2px 8px;border-radius:20px;margin:4px 5px 0 0;font-weight:600;}
+  .card .due{font-size:11px;margin-top:7px;padding:3px 8px;border-radius:6px;display:inline-block;font-weight:600;}
+  .due.over{background:var(--danger-soft);color:var(--danger);}
+  .due.soon{background:var(--warn-soft);color:var(--warn);}
+
+  /* Table */
+  #list{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--radius);box-shadow:var(--shadow-sm);}
+  table{width:100%;border-collapse:collapse;background:var(--bg);border-radius:var(--radius);overflow:hidden;min-width:680px;}
+  th,td{text-align:left;padding:12px 14px;font-size:13px;border-bottom:1px solid var(--line);}
+  th{background:var(--gray-100);color:var(--gray-700);font-weight:700;font-size:12px;white-space:nowrap;position:sticky;top:0;}
+  tbody tr{cursor:pointer;transition:.12s;}
+  tbody tr:hover{background:var(--orange-soft);}
+  td .pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;background:var(--gray-100);color:var(--gray-700);white-space:nowrap;font-weight:600;}
+  td .pill.deal{background:var(--orange-soft);color:var(--orange);}
+  td .pill.lost{background:#EAEAEE;color:var(--gray-500);}
+  .due-cell.over{color:var(--danger);font-weight:700;}
+  .due-cell.soon{color:var(--warn);font-weight:700;}
+
+  .empty{padding:48px;text-align:center;color:var(--gray-500);background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-sm);border:1px dashed var(--gray-300);}
+
+  /* Modal */
+  .mask{position:fixed;inset:0;background:rgba(20,20,25,.45);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:50;overflow:auto;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);}
+  .mask.show{display:flex;animation:fade .2s ease;}
+  .modal{background:#fff;border-radius:18px;box-shadow:var(--shadow-lg);width:100%;max-width:640px;padding:24px 24px 22px;margin:auto;animation:pop .22s cubic-bezier(.2,.8,.3,1);}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+  .modal h2{margin:0 0 4px;font-size:19px;font-weight:700;}
+  .modal .desc{color:var(--gray-500);font-size:12px;margin-bottom:18px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .form-row{display:flex;flex-direction:column;gap:6px;}
+  .form-row.full{grid-column:1/-1;}
+  .form-row select,.form-row input,.form-row textarea,.addfu input,.addfu textarea{width:100%;}
+  label{font-size:12px;color:var(--gray-700);font-weight:600;}
+  .regions{display:flex;flex-wrap:wrap;gap:8px;}
+  .regions label{font-weight:500;font-size:12px;background:var(--gray-100);padding:7px 12px;border-radius:22px;cursor:pointer;border:1px solid transparent;display:flex;align-items:center;gap:6px;transition:.14s;color:var(--gray-700);}
+  .regions input{accent-color:var(--orange);width:14px;height:14px;}
+  .regions label.on{background:var(--orange-soft);border-color:var(--orange);color:var(--orange);font-weight:600;}
+  .modal-foot{display:flex;justify-content:space-between;align-items:center;margin-top:24px;gap:10px;padding-top:16px;border-top:1px solid var(--line);}
+  .err{color:var(--danger);font-size:12px;min-height:16px;}
+
+  /* Detail */
+  .detail-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+  .followups{margin-top:20px;border-top:1px solid var(--line);padding-top:16px;}
+  .followups h4{margin:0 0 12px;font-size:14px;font-weight:700;}
+  .fu{background:var(--gray-100);border-radius:10px;padding:11px 14px;margin-bottom:10px;border:1px solid var(--line);}
+  .fu .fut{font-size:11px;color:var(--gray-500);font-weight:600;}
+  .fu .fuc{font-size:13px;margin:5px 0;color:var(--ink-2);}
+  .fu .fun{font-size:12px;color:var(--orange);font-weight:600;}
+  .addfu{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px;background:var(--paper);padding:16px;border-radius:12px;border:1px solid var(--line);}
+  .hidden{display:none;}
+  .tagline{font-size:12px;color:var(--gray-500);margin-top:4px;line-height:1.5;}
+
+  /* Nav */
+  .main-nav{display:flex;gap:4px;background:var(--gray-100);padding:4px;border-radius:11px;box-shadow:var(--shadow-sm);}
+  .main-nav button{background:transparent;color:var(--gray-500);font-weight:600;padding:8px 16px;border-radius:8px;transition:.14s;}
+  .main-nav button.active{background:#fff;color:var(--orange);box-shadow:var(--shadow-sm);}
+  .main-nav button:hover{color:var(--orange);}
+
+  /* Buildings */
+  .b-search{display:flex;gap:10px;margin-bottom:18px;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow-sm);flex-wrap:wrap;}
+  .b-search input{flex:1;min-width:160px;}
+  .b-search .btn-primary,.b-search .btn-ghost{white-space:nowrap;}
+  .districts{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+  .dist{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:18px;border:1px solid var(--line);transition:.16s;}
+  .dist:hover{box-shadow:var(--shadow);}
+  .dist h3{font-size:15px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:center;font-weight:700;}
+  .dist h3 .cnt{font-size:12px;color:var(--gray-500);font-weight:600;background:var(--gray-100);padding:2px 10px;border-radius:20px;}
+  .dist-sub{font-size:12px;color:var(--gray-500);margin:-8px 0 10px;}
+  .b-list{display:flex;flex-wrap:wrap;gap:8px;}
+  .b-list span{display:inline-flex;align-items:center;gap:2px;background:var(--gray-100);border-radius:22px;padding:6px 13px;font-size:12px;color:var(--ink-2);border:1px solid transparent;transition:.14s;}
+  .b-list span:hover{background:var(--orange-soft);border-color:var(--orange);}
+  .b-list span.sub{font-size:10px;color:var(--gray-500);background:transparent;padding-left:0;border:none;}
+  .suggest{margin-top:18px;background:var(--orange-soft);border-radius:12px;padding:16px;border:1px solid #f6d8c8;}
+  .suggest h4{margin:0 0 12px;font-size:14px;font-weight:700;color:var(--orange-d);}
+  .suggest-group{margin-bottom:12px;}
+  .suggest-group h5{margin:6px 0 6px;font-size:12px;color:var(--gray-700);font-weight:700;}
+
+  /* Maps */
+  .maps-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
+  .map-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden;border:1px solid var(--line);transition:.16s;}
+  .map-card:hover{box-shadow:var(--shadow);}
+  .map-card h3{font-size:15px;margin:0;padding:16px 18px 6px;font-weight:700;}
+  .map-card .map-sub{font-size:12px;color:var(--gray-500);padding:0 18px 12px;}
+  .map-card img{width:100%;display:block;border-top:1px solid var(--line);background:#fff;}
+  .map-hint{font-size:12px;color:var(--gray-500);margin:0 4px 14px;line-height:1.6;}
+
+  /* building fields */
+  .bfield{display:inline-flex;align-items:center;background:var(--orange-soft);color:var(--orange-d);border-radius:20px;padding:2px 9px;font-size:11px;margin:3px 5px 0 0;font-weight:600;border:1px solid #f6d8c8;}
+  .bfield.empty{background:var(--gray-100);color:var(--gray-500);border-color:var(--line);}
+  .b-edit{cursor:pointer;border:1px dashed transparent;}
+  .b-edit:hover{outline:1px solid var(--orange);background:var(--orange-soft);border-radius:22px;}
+  .bd-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;}
+
+  /* inquiry building tracker */
+  .b-track{display:inline-flex;align-items:center;gap:6px;background:var(--gray-100);border-radius:9px;padding:4px 9px;margin:4px 6px 0 0;font-size:12px;border:1px solid var(--line);}
+  .b-track.on{background:var(--orange-soft);}
+  .b-track.suitable{outline:2px solid var(--ok);background:var(--ok-soft);}
+  .b-track.unsuitable{outline:2px solid var(--danger);background:var(--danger-soft);opacity:.85;}
+  .b-track.unsuitable label{text-decoration:line-through;color:var(--gray-500);}
+  .b-track label{display:flex;align-items:center;gap:4px;cursor:pointer;}
+  .b-track input{accent-color:var(--orange);}
+  .b-track .b-name{font-weight:600;color:var(--ink-2);}
+  .blink{background:#fff;border:1px solid var(--gray-300);border-radius:7px;font-size:11px;padding:3px 9px;cursor:pointer;color:var(--gray-700);transition:.14s;font-weight:600;}
+  .blink:hover{border-color:var(--orange);color:var(--orange);}
+  .blink.s-on{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);}
+  .blink.u-on{background:var(--danger-soft);border-color:var(--danger);color:var(--danger);}
+  .track-count{font-size:12px;color:var(--gray-500);margin-top:8px;font-weight:600;}
+  .track-filter{display:flex;gap:6px;margin:4px 0 12px;flex-wrap:wrap;}
+  .track-filter button{background:var(--gray-100);border:1px solid var(--line);border-radius:999px;font-size:11px;padding:4px 14px;cursor:pointer;color:var(--gray-700);font-weight:600;transition:.14s;}
+  .track-filter button:hover{border-color:var(--orange);color:var(--orange);}
+  .track-filter button.active{background:var(--orange);border-color:var(--orange);color:#fff;}
+  .note-text{width:100%;font-family:inherit;font-size:13px;padding:11px;border:1px solid var(--line);border-radius:var(--radius-sm);resize:vertical;box-sizing:border-box;transition:.16s;}
+  .note-text:focus{outline:none;border-color:var(--orange);box-shadow:var(--ring);}
+
+  /* Responsive */
+  @media(max-width:1080px){
+    .stats{grid-template-columns:repeat(3,1fr);}
+  }
+  @media(max-width:880px){
+    .wrap{padding:0 16px 56px;}
+    header.top{margin:0 -16px 18px;padding:12px 16px;}
+    .grid2{grid-template-columns:1fr;}
+    .districts{grid-template-columns:1fr;}
+    .maps-grid{grid-template-columns:1fr;}
+    .bd-grid{grid-template-columns:1fr;}
+  }
+  @media(max-width:720px){
+    .top{gap:10px 12px;}
+    .brand{order:1;}
+    .actions{order:2;}
+    .main-nav{order:3;width:100%;justify-content:space-between;}
+    .main-nav button{flex:1;text-align:center;padding:9px 8px;}
+    .brand h1{font-size:16px;}
+    .brand .sub{font-size:11px;}
+    .stats{grid-template-columns:repeat(2,1fr);gap:10px;}
+    .stat .num{font-size:22px;}
+    .toolbar{padding:10px 12px;gap:8px;}
+    .modal{padding:20px 16px 18px;border-radius:14px;}
+    .mask{padding:24px 12px;}
+    .b-track{padding:6px 10px;font-size:13px;}
+    .blink{padding:5px 11px;font-size:12px;}
+    .card .co{font-size:14px;}
+  }
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#888780;margin-right:6px;vertical-align:middle;transition:background .2s}
+.sync-status{display:flex;align-items:center;gap:10px;font-size:13px;color:#444;margin:10px 0}
+.sync-status .btn-ghost{padding:4px 10px;font-size:12px}
+.sync-status b{color:#222}
+.row{display:flex;gap:10px;margin:12px 0}
+.row.end{justify-content:flex-end}
+.guide{margin-top:10px;border-top:1px solid #e3e1da;padding-top:10px}
+.guide summary{cursor:pointer;font-size:13px;color:#E8541D;font-weight:500}
+.guide-body{font-size:12.5px;line-height:1.7;color:#444;margin-top:8px;white-space:pre-wrap}
+.muted{color:#666;font-size:13px;line-height:1.6;margin:6px 0 14px}
+@media(max-width:720px){ #syncText{display:none} }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="logo">松</div>
+      <div>
+        <h1>选址顾问工作台</h1>
+        <div class="sub">询盘管理 + 楼盘库 · 广州珠江新城 / 琶洲 / 金融城 / 创意园</div>
+      </div>
+    </div>
+    <nav class="main-nav" id="mainNav">
+      <button data-section="inquiries" class="active">询盘管理</button>
+      <button data-section="deals">成交台账</button>
+      <button data-section="buildings">楼盘库</button>
+      <button data-section="maps">地图</button>
+    </nav>
+    <div class="actions">
+      <button class="btn-ghost" id="btnSync"><span id="syncDot" class="dot"></span><span id="syncText">本地模式</span></button>
+      <button class="btn-ghost" id="btnImport">导入 JSON</button>
+      <button class="btn-ghost" id="btnExport">导出备份</button>
+      <button class="btn-primary" id="btnAdd">+ 新增询盘</button>
+      <input type="file" id="fileInput" accept="application/json" class="hidden" />
+    </div>
+  </header>
+
+  <div id="inquirySection">
+    <section class="stats" id="stats"></section>
+
+    <div class="toolbar">
+      <div class="seg" id="viewSeg">
+        <button data-view="board" class="active">看板</button>
+        <button data-view="list">列表</button>
+      </div>
+      <select id="fStage"><option value="">全部阶段</option></select>
+      <select id="fRegion"><option value="">全部片区</option><option>珠江新城</option><option>琶洲</option><option>金融城</option><option>创意园</option><option>天河商圈</option><option>越秀</option><option>番禺万博</option><option>科学城</option><option>五山/元岗</option><option>其他</option></select>
+      <select id="fIndustry"><option value="">全部行业</option></select>
+      <input type="text" class="search" id="fSearch" placeholder="搜索客户 / 公司 / 备注…" />
+      <div class="spacer"></div>
+    </div>
+
+    <div id="board" class="board"></div>
+    <div id="list" class="hidden"></div>
+  </div>
+
+  <div id="buildingSection" class="hidden">
+    <div class="b-search">
+      <input type="text" id="bSearch" class="search" placeholder="搜索楼盘 / 创意园 / 大厦…" />
+      <select id="bRegion"><option value="">全部片区</option><option>珠江新城</option><option>金融城</option><option>琶洲</option><option>创意园</option><option>天河商圈</option><option>越秀</option><option>番禺万博</option><option>科学城</option><option>五山/元岗</option></select>
+      <button class="btn-primary" id="btnAddBuilding">+ 新增楼盘</button>
+      <button class="btn-ghost" id="btnAddDistrict">+ 新增片区</button>
+    </div>
+    <div id="districts" class="districts"></div>
+  </div>
+
+  <div id="mapSection" class="hidden">
+    <p class="map-hint">以下为松果运营《2026 写字楼分布图》原图，按片区归档，供核对楼盘与位置使用。</p>
+    <div class="maps-grid" id="maps"></div>
+  </div>
+
+  <div id="dealsSection" class="hidden">
+    <section class="stats" id="dealStats"></section>
+    <div class="toolbar">
+      <select id="dfDistrict"><option value="">全部商务区</option><option>珠江新城</option><option>琶洲</option><option>金融城</option><option>越秀</option><option>体育中心</option><option>天河商圈</option><option>其他</option></select>
+      <select id="dfType"><option value="">全部类型</option><option>新设</option><option>搬迁</option><option>扩租</option><option>续租</option></select>
+      <select id="dfIndustry"><option value="">全部行业</option></select>
+      <input type="text" class="search" id="dfSearch" placeholder="搜索企业 / 项目…" />
+      <div class="spacer"></div>
+      <button class="btn-primary" id="btnAddDeal">+ 新增成交</button>
+    </div>
+    <div class="table-wrap" id="dealsTableWrap">
+      <table class="data-table" id="dealsTable">
+        <thead><tr>
+          <th>企业</th><th>项目</th><th>商务区</th><th>面积(㎡)</th><th>类型</th><th>租金</th><th>行业</th><th>楼层</th><th>备注</th><th></th>
+        </tr></thead>
+        <tbody id="dealsBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="mask" id="maskDeal">
+  <div class="modal" style="max-width:600px">
+    <h2 id="dealTitle">新增成交</h2>
+    <div class="grid2">
+      <div class="form-row"><label>企业名称</label><input type="text" id="d_company" placeholder="如：唯寻教育" /></div>
+      <div class="form-row"><label>项目</label><input type="text" id="d_project" placeholder="如：周大福金融中心" /></div>
+    </div>
+    <div class="grid2">
+      <div class="form-row"><label>商务区</label>
+        <select id="d_district"><option value="">请选择</option><option>珠江新城</option><option>琶洲</option><option>金融城</option><option>越秀</option><option>体育中心</option><option>天河商圈</option><option>其他</option></select>
+      </div>
+      <div class="form-row"><label>成交类型</label>
+        <select id="d_type"><option value="">请选择</option><option>新设</option><option>搬迁</option><option>扩租</option><option>续租</option></select>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="form-row"><label>成交面积(㎡)</label><input type="number" id="d_area" placeholder="如 370" /></div>
+      <div class="form-row"><label>租金(元/㎡/月)</label><input type="text" id="d_rent" placeholder="如 180 或 130-140" /></div>
+    </div>
+    <div class="grid2">
+      <div class="form-row"><label>行业</label><input type="text" id="d_industry" placeholder="如：教育 / TMT / 金融业" /></div>
+      <div class="form-row"><label>楼层</label><input type="text" id="d_floor" placeholder="如：64F 或 23-24F" /></div>
+    </div>
+    <div class="form-row"><label>备注</label><input type="text" id="d_note" placeholder="带装修 / 包装修 / 有效租金等" /></div>
+    <div class="row end">
+      <button class="btn-ghost" id="deal_close">取消</button>
+      <button class="btn-ghost" id="deal_delete" style="display:none;color:#A32D2D">删除</button>
+      <button class="btn-primary" id="deal_save">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="mask" id="maskSync">
+  <div class="modal" style="max-width:540px">
+    <h2>同步与团队共享</h2>
+    <p class="muted">把数据放到云端，电脑 / 手机 / 同事都能访问同一份。团队共用一个「空间 Key」即可，无需各自账号。</p>
+    <div class="form-row"><label>模式</label>
+      <select id="sync_mode"><option value="local">本地（仅本机）</option><option value="cloud">云端（Supabase 共享）</option></select>
+    </div>
+    <div id="syncCloudFields">
+      <div class="form-row"><label>Supabase URL</label><input id="sync_url" placeholder="https://xxxx.supabase.co" /></div>
+      <div class="form-row"><label>匿名 Key</label><input id="sync_key" placeholder="eyJhbGci... (anon public)" /></div>
+      <div class="form-row"><label>团队空间 Key</label><input id="sync_space" placeholder="如 songguo-team-01" /></div>
+    </div>
+    <div class="sync-status">状态：<b id="syncText2">—</b> <button class="btn-ghost" id="btnTest">连接测试</button></div>
+    <div class="row">
+      <button class="btn-ghost" id="btnPush">立即同步</button>
+      <button class="btn-ghost" id="btnPull">拉取云端</button>
+    </div>
+    <details class="guide">
+      <summary>部署指引（首次使用必看）</summary>
+      <div class="guide-body">1) 打开 supabase.com 注册免费账号，New project（区域建议选 Singapore）。
+2) 左侧 SQL Editor 执行建表语句（见随附《部署指引.md》）。
+3) Project Settings → API，复制 Project URL 与 anon public key。
+4) 回到本工作台「同步设置」填好三项并保存，会自动拉取 / 推送。
+5) 把「团队空间 Key」发给同事，他们填相同 Key + 相同 URL/Key 即进同一空间。
+注意：anon key 会暴露在前端，所以空间 Key 相当团队密码，勿外泄；不同团队请用不同 Key 隔离。</div>
+    </details>
+    <div class="row end">
+      <button class="btn-ghost" id="sync_close">关闭</button>
+      <button class="btn-primary" id="sync_save">保存设置</button>
+    </div>
+  </div>
+</div>
+
+<!-- Building Detail / Edit Modal -->
+<div class="mask" id="maskBuilding">
+  <div class="modal">
+    <h2>编辑楼盘</h2>
+    <div class="tagline" id="b_sub"></div>
+    <div class="grid2" style="margin-top:10px;">
+      <div class="form-row"><label>所属片区</label><select id="b_district"></select></div>
+      <div class="form-row"><label>楼盘名称</label><input type="text" id="b_name" /></div>
+    </div>
+    <div class="bd-grid" style="margin-top:14px;" id="b_fields"></div>
+    <div class="modal-foot">
+      <button class="btn-ghost" id="b_close">关闭</button>
+      <button class="btn-primary" id="b_save">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Building Modal -->
+<div class="mask" id="maskAddBuilding">
+  <div class="modal">
+    <h2>新增楼盘</h2>
+    <div class="tagline">选择所属片区，填写楼盘名称与盘源信息</div>
+    <div class="grid2" style="margin-top:10px;">
+      <div class="form-row"><label>所属片区</label><select id="ab_district"></select></div>
+      <div class="form-row"><label>楼盘名称</label><input type="text" id="ab_name" placeholder="如：汇金国际金融中心" /></div>
+    </div>
+    <div class="form-row" style="margin-top:10px;"><label>副名 / 塔座（选填）</label><input type="text" id="ab_sub" placeholder="如：西塔 / B座" /></div>
+    <div class="bd-grid" style="margin-top:14px;" id="ab_fields"></div>
+    <div class="modal-foot">
+      <button class="btn-ghost" id="ab_close">取消</button>
+      <button class="btn-primary" id="ab_save">新增</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add District Modal -->
+<div class="mask" id="maskAddDistrict">
+  <div class="modal">
+    <h2>新增片区</h2>
+    <div class="tagline">新增一个片区（如：南沙、花都、白云新城…），将自动出现在楼盘库、新增楼盘、客户片区偏好中</div>
+    <div class="form-row" style="margin-top:10px;"><label>片区名称</label><input type="text" id="ad_name" placeholder="如：南沙" /></div>
+    <div class="modal-foot">
+      <button class="btn-ghost" id="ad_close">取消</button>
+      <button class="btn-primary" id="ad_save">新增片区</button>
+    </div>
+  </div>
+</div>
+
+<!-- WeChat Note Import Modal -->
+<div class="mask" id="maskNote">
+  <div class="modal">
+    <h2 id="note_title"></h2>
+    <div class="tagline">粘贴来自微信的笔记 / 盘源信息（可多行）</div>
+    <textarea id="note_text" class="note-text" rows="8" placeholder="例如：租金 155 含票，110㎡，朝南，免租 2 个月，可谈…"></textarea>
+    <div class="modal-foot">
+      <button class="btn-ghost" id="note_close">关闭</button>
+      <button class="btn-primary" id="note_save">保存笔记</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add / Edit Modal -->
+<div class="mask" id="maskForm">
+  <div class="modal">
+    <h2 id="formTitle">新增询盘</h2>
+    <div class="desc">结构化录入一条客户需求，30 秒搞定</div>
+    <div class="grid2">
+      <div class="form-row"><label>客户 / 公司 *</label><input type="text" id="f_company" placeholder="如：某跨境电商" /></div>
+      <div class="form-row"><label>联系人</label><input type="text" id="f_contact" placeholder="姓名 / 职务" /></div>
+      <div class="form-row"><label>行业</label><input type="text" id="f_industry" placeholder="如：金融 / 科技 / 文创" /></div>
+      <div class="form-row"><label>需求面积 (㎡)</label><input type="number" id="f_area" placeholder="如：800" /></div>
+      <div class="form-row"><label>预算 (元/㎡/月)</label><input type="number" id="f_budget" placeholder="如：150" /></div>
+      <div class="form-row"><label>来源</label>
+        <select id="f_source"><option>微信</option><option>转介绍</option><option>线上端口</option><option>老客户</option><option>其他</option></select>
+      </div>
+      <div class="form-row"><label>阶段</label>
+        <select id="f_stage"></select>
+      </div>
+      <div class="form-row"><label>期望时间</label><input type="date" id="f_expect" /></div>
+      <div class="form-row full">
+        <label>片区偏好（可多选）</label>
+        <div class="regions" id="f_regions">
+          <label><input type="checkbox" value="珠江新城"/>珠江新城</label>
+          <label><input type="checkbox" value="琶洲"/>琶洲</label>
+          <label><input type="checkbox" value="金融城"/>金融城</label>
+          <label><input type="checkbox" value="创意园"/>创意园</label>
+          <label><input type="checkbox" value="天河商圈"/>天河商圈</label>
+          <label><input type="checkbox" value="越秀"/>越秀</label>
+          <label><input type="checkbox" value="番禺万博"/>番禺万博</label>
+          <label><input type="checkbox" value="科学城"/>科学城</label>
+          <label><input type="checkbox" value="五山/元岗"/>五山/元岗</label>
+          <label><input type="checkbox" value="其他"/>其他</label>
+        </div>
+      </div>
+      <div class="form-row"><label>下次跟进日期</label><input type="date" id="f_next" /></div>
+      <div class="form-row full"><label>备注</label><textarea id="f_remark" rows="2" placeholder="特殊需求、决策人、竞品等"></textarea></div>
+    </div>
+    <div class="err" id="formErr"></div>
+    <div class="modal-foot">
+      <button class="btn-ghost" id="btnDelete" style="display:none;color:var(--danger)">删除</button>
+      <div style="display:flex;gap:10px;margin-left:auto;">
+        <button class="btn-ghost" id="btnCancel">取消</button>
+        <button class="btn-primary" id="btnSave">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="mask" id="maskDetail">
+  <div class="modal">
+    <div class="detail-head">
+      <div>
+        <h2 id="d_company"></h2>
+        <div class="tagline" id="d_tagline"></div>
+      </div>
+      <button class="btn-ghost btn-sm" id="btnEdit">编辑</button>
+    </div>
+    <div id="d_body" style="margin-top:14px;"></div>
+    <div class="followups">
+      <h4>跟进记录</h4>
+      <div id="d_followups"></div>
+      <div class="addfu">
+        <div class="grid2">
+          <input type="date" id="fu_date" />
+          <input type="text" id="fu_next" placeholder="下一步动作（如：周五发盘）" />
+        </div>
+        <textarea id="fu_content" rows="2" placeholder="本次跟进内容…"></textarea>
+        <button class="btn-primary btn-sm" id="btnAddFu" style="justify-self:start;">+ 添加跟进</button>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost" id="btnCloseDetail">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = "songguo_inquiries_v1";
+const STAGES = ["新询盘","需求确认","房源匹配","带看","谈判","成交","流失"];
+const REGIONS = ["珠江新城","琶洲","金融城","创意园","其他"];
+
+/* ---------- 成交台账数据模型 ---------- */
+const DEALS_KEY="songguo_deals_v1";
+let deals=[];
+let editingDealId=null;
+function loadDeals(){
+  try{ const r=localStorage.getItem(DEALS_KEY); if(r) deals=JSON.parse(r); }
+  catch(e){ deals=[]; }
+  if(!deals||!deals.length){ seedDeals(); saveDeals(); }
+}
+function saveDeals(){ try{ localStorage.setItem(DEALS_KEY,JSON.stringify(deals)); }catch(e){} scheduleSync(); }
+function seedDeals(){
+  deals=[
+{id:uid(),company:"唯寻教育",project:"周大福金融中心",district:"珠江新城",area:370,type:"新设",rent:"180",industry:"教育",floor:"64F",note:"带装修"},
+{id:uid(),company:"中信银行AIc部门",project:"粤海金融中心",district:"珠江新城",area:3500,type:"搬迁",rent:"150",industry:"金融业",floor:"",note:""},
+{id:uid(),company:"中信保诚",project:"天德广场T1",district:"珠江新城",area:1250,type:"扩租",rent:"170",industry:"金融业",floor:"19F",note:""},
+{id:uid(),company:"博岚品牌服务",project:"天德广场T1",district:"珠江新城",area:700,type:"搬迁",rent:"185",industry:"专业服务",floor:"7F",note:""},
+{id:uid(),company:"聚美科技",project:"天德广场T1",district:"珠江新城",area:1500,type:"扩租",rent:"180",industry:"TMT",floor:"20F",note:""},
+{id:uid(),company:"秀自我美容",project:"天德广场T2",district:"珠江新城",area:700,type:"搬迁",rent:"185",industry:"专业服务",floor:"",note:""},
+{id:uid(),company:"金辩律师",project:"环球都会广场",district:"珠江新城",area:1200,type:"搬迁",rent:"110",industry:"专业服务",floor:"65F",note:""},
+{id:uid(),company:"濮真律师",project:"环球都会广场",district:"珠江新城",area:1036,type:"搬迁",rent:"150",industry:"专业服务",floor:"56F",note:"带装修"},
+{id:uid(),company:"美图秀秀",project:"保利克洛维",district:"珠江新城",area:300,type:"续租",rent:"90",industry:"TMT",floor:"",note:""},
+{id:uid(),company:"印度领事馆",project:"合景国际金融中心",district:"珠江新城",area:1200,type:"搬迁",rent:"150",industry:"机关政要",floor:"",note:""},
+{id:uid(),company:"AIA",project:"珠江城",district:"珠江新城",area:5400,type:"续租",rent:"120",industry:"金融业",floor:"",note:""},
+{id:uid(),company:"裴石律师",project:"太平洋金融大厦",district:"珠江新城",area:300,type:"搬迁",rent:"130-140",industry:"专业服务",floor:"低区",note:""},
+{id:uid(),company:"捏捏虎",project:"大古汇",district:"体育中心",area:400,type:"搬迁",rent:"180",industry:"餐饮业",floor:"",note:"包装修"},
+{id:uid(),company:"东京海上日动火灾保险",project:"环贸中心",district:"体育中心",area:700,type:"搬迁",rent:"120",industry:"金融业",floor:"",note:""},
+{id:uid(),company:"英氏",project:"琶洲中心",district:"琶洲",area:3500,type:"搬迁",rent:"80",industry:"批发零售",floor:"23-24F",note:""},
+{id:uid(),company:"杭州轻工集团",project:"琶洲中心",district:"琶洲",area:660,type:"新设",rent:"90",industry:"制造业",floor:"",note:""},
+{id:uid(),company:"悦江化妆品",project:"铭丰广场",district:"琶洲",area:300,type:"扩租",rent:"120",industry:"批发零售",floor:"",note:"包装修"},
+{id:uid(),company:"显盈(北京)建设",project:"铭丰广场",district:"琶洲",area:600,type:"新设",rent:"120",industry:"房产建筑",floor:"",note:"带装修"},
+{id:uid(),company:"Wonder Lab万益蓝",project:"铭丰广场",district:"琶洲",area:1000,type:"搬迁",rent:"120",industry:"生物医药",floor:"35F",note:"带装修"},
+{id:uid(),company:"广州仪杰楷贸易",project:"铭丰广场",district:"琶洲",area:330,type:"搬迁",rent:"120",industry:"批发零售",floor:"",note:""},
+{id:uid(),company:"中信证券",project:"欢聚大厦",district:"琶洲",area:1000,type:"搬迁",rent:"134",industry:"金融业",floor:"",note:""},
+{id:uid(),company:"希腊领事馆",project:"开元广场",district:"琶洲",area:600,type:"搬迁",rent:"120",industry:"机关政要",floor:"",note:""},
+{id:uid(),company:"广发证券",project:"宝地广场",district:"琶洲",area:570,type:"搬迁",rent:"105",industry:"金融业",floor:"11F",note:""},
+{id:uid(),company:"微大夫智能科技",project:"粤传媒大厦",district:"琶洲",area:2000,type:"搬迁",rent:"75",industry:"TMT",floor:"11F",note:""},
+{id:uid(),company:"甜蜜蜜科技婚庆公司",project:"TCL大厦",district:"琶洲",area:480,type:"搬迁",rent:"110",industry:"专业服务",floor:"",note:""},
+{id:uid(),company:"跨境电商公司",project:"TCL大厦",district:"琶洲",area:790,type:"搬迁",rent:"110",industry:"TMT",floor:"17F",note:""},
+{id:uid(),company:"知时互动",project:"南丰汇",district:"琶洲",area:300,type:"扩租",rent:"95-100（有效）",industry:"TMT",floor:"",note:""},
+{id:uid(),company:"康捷空",project:"保利发展广场",district:"琶洲",area:1000,type:"搬迁",rent:"80",industry:"交通物流",floor:"12F",note:""},
+{id:uid(),company:"四维图新",project:"保利发展广场",district:"琶洲",area:1200,type:"新设",rent:"100",industry:"TMT",floor:"",note:""},
+{id:uid(),company:"KN物流",project:"媒体港",district:"琶洲",area:2600,type:"搬迁",rent:"100",industry:"交通物流",floor:"",note:"85（有效租金）"},
+{id:uid(),company:"合利宝",project:"媒体港",district:"琶洲",area:3340,type:"搬迁",rent:"95",industry:"TMT",floor:"",note:""},
+{id:uid(),company:"拓尔思",project:"智通广场",district:"琶洲",area:1000,type:"搬迁",rent:"85",industry:"TMT",floor:"",note:""},
+{id:uid(),company:"中电科普天科科",project:"环汇商业广场南塔",district:"琶洲",area:326,type:"搬迁",rent:"80",industry:"TMT",floor:"8F",note:""},
+{id:uid(),company:"广贸天下",project:"环汇商业广场南塔",district:"琶洲",area:800,type:"搬迁",rent:"70",industry:"批发零售",floor:"",note:""},
+{id:uid(),company:"希脉创新科技",project:"广铝中心",district:"琶洲",area:4400,type:"搬迁",rent:"100",industry:"TMT",floor:"",note:""},
+{id:uid(),company:"广州丰申网络科技",project:"环球贸易中心",district:"琶洲",area:1000,type:"搬迁",rent:"105",industry:"TMT",floor:"",note:""},
+{id:uid(),company:"玄武云",project:"新华保险大厦",district:"金融城",area:2000,type:"搬迁",rent:"60",industry:"TMT",floor:"",note:"包装修"},
+{id:uid(),company:"大麦科技",project:"君超中心",district:"金融城",area:700,type:"搬迁",rent:"130",industry:"文化娱乐",floor:"",note:""},
+{id:uid(),company:"途游科技",project:"天际广场",district:"金融城",area:2700,type:"搬迁",rent:"100",industry:"TMT",floor:"",note:""},
+{id:uid(),company:"大一互联网络",project:"汉银广场",district:"金融城",area:520,type:"搬迁",rent:"130",industry:"TMT",floor:"",note:"带装修"},
+{id:uid(),company:"汉启电子商务",project:"汉银广场",district:"金融城",area:600,type:"搬迁",rent:"130",industry:"TMT",floor:"",note:"带装修"},
+{id:uid(),company:"高乐氏",project:"星寰中心T1",district:"越秀",area:700,type:"新设",rent:"135",industry:"批发零售",floor:"27F",note:""}
+  ];
+}
+
+/* ---------- building database from 松果运营 2026 distribution map ---------- */
+const BUILDINGS = {
+  "珠江新城": [
+    {name:"盈力大厦"},{name:"珠控中心"},{name:"邦华环球汇"},{name:"汇美大厦"},{name:"星汇大厦"},{name:"华普广场"},{name:"南天广场"},{name:"双城国际"},{name:"建滔广场"},{name:"远洋大厦"},
+    {name:"万科中心"},{name:"发展中心"},{name:"保利中心"},{name:"中盛大厦"},{name:"中景A座"},{name:"合景国际"},{name:"中盈大厦"},{name:"腾跃大厦"},{name:"太平洋金融大厦"},{name:"粤海金融中心"},
+    {name:"广晟国际大厦"},{name:"盈通大厦"},{name:"盈信大厦"},{name:"珠江城大厦"},{name:"雅居乐中心"},{name:"侨鑫国际"},{name:"嘉裕中心"},{name:"威座国际（北座）"},{name:"威座国际（南座）"},{name:"珠江投资大厦"},
+    {name:"高德置地 A座"},{name:"高德置地 B座"},{name:"高德置地 C座"},{name:"高德置地 D座"},{name:"高德置地 E座"},{name:"高德置地 F座"},{name:"高德置地 G座"},{name:"高德置地 H座"},
+    {name:"盈凯广场"},{name:"富力中心"},{name:"合景国际金融广场（IFP）"},{name:"广州国际金融中心（IFC）"},{name:"周大福金融中心"},{name:"环球都会广场"},{name:"凯华国际中心"},{name:"珠光新城国际中心"},
+    {name:"跑马地大厦"},{name:"马赛国际商务中心"},{name:"科讯大厦"},{name:"广发证券大厦"},{name:"广电平云广场"},{name:"嘉昱中心"},{name:"盈盛广场"},{name:"美林基业大厦"},{name:"珠光新城御景"},
+    {name:"东田大厦"},{name:"高志大厦"},{name:"云来斯堡酒店"},{name:"星辉中心"},{name:"财富世纪广场"},{name:"勤建大厦"},{name:"伟腾大厦"},{name:"盈泰广场"},{name:"奥园大厦"},{name:"恒大中心"},
+    {name:"广州银行大厦"},{name:"利通广场"},{name:"越秀金融大厦"},{name:"三银大厦"},{name:"南岳大厦"},{name:"保利大厦"},{name:"天盈广场西塔"},{name:"天盈广场东塔"},{name:"天德广场"},{name:"中达广场"},{name:"南雅中和广场"}
+  ],
+  "金融城": [
+    {name:"君超中心",sub:"金融城起步区"},{name:"汇金中心",sub:"金融城起步区"},{name:"汇金国际金融中心（IFE）",sub:"金融城起步区"},{name:"绿地中心",sub:"金融城起步区"},{name:"太平洋保险大厦",sub:"金融城起步区"},{name:"保利金融大都汇",sub:"金融城起步区"},{name:"城际中心",sub:"金融城起步区"},
+    {name:"汉银广场",sub:"金融城起步区"},{name:"鸿益国际中心",sub:"金融城起步区"},{name:"南粤银行大厦",sub:"金融城起步区"},{name:"万联证券 / 广州金控大厦",sub:"金融城起步区"},{name:"平安财富大厦",sub:"金融城起步区"},{name:"新华保险大厦",sub:"金融城起步区"},{name:"交易广场",sub:"金融城起步区"},{name:"太平金融大厦",sub:"金融城起步区"},{name:"农业银行大厦",sub:"金融城起步区"},
+    {name:"华兴银行大厦",sub:"金融城起步区"},{name:"广州银行大厦",sub:"金融城起步区"},{name:"中国人寿大厦",sub:"金融城起步区"},{name:"广发银行大厦",sub:"金融城起步区"},{name:"南方财经大厦",sub:"金融城起步区"},
+    {name:"中国人保大厦",sub:"金融城起步区"},{name:"越秀财富大厦",sub:"金融城起步区"},{name:"城投金融大厦",sub:"金融城起步区"},{name:"城裕大厦",sub:"金融城起步区"},{name:"城隆大厦",sub:"金融城起步区"},{name:"天际广场",sub:"金融城起步区"},{name:"天财大厦",sub:"金融城起步区"},
+    {name:"广州国际港航中心",sub:"金融城东区"},{name:"广州国际港航中心二期",sub:"金融城东区"},{name:"海丝创新中心",sub:"金融城东区"},{name:"中建四局科创大厦",sub:"金融城东区"},{name:"好太太大厦",sub:"金融城东区"},{name:"酷狗 / 腾讯音乐大厦",sub:"金融城东区"},{name:"景龙建设大厦",sub:"金融城东区"},{name:"尚品宅配大厦",sub:"金融城东区"},{name:"澳门国际银行大厦",sub:"金融城东区"},
+    {name:"珠光金融城壹号",sub:"金融城东区"},{name:"领润国际中心",sub:"金融城东区"},{name:"九江银行大厦",sub:"金融城东区"},{name:"广州鹏湾酒店公寓",sub:"金融城东区"},{name:"行信中心",sub:"金融城东区"},{name:"鱼珠港 A2栋",sub:"金融城东区"},{name:"华美国际",sub:"金融城东区"},{name:"恒丰银行大厦",sub:"金融城东区"},{name:"4399 网络",sub:"金融城东区"},{name:"越秀南方智媒 IMC",sub:"金融城东区"},{name:"汤臣倍健大厦",sub:"金融城东区"},{name:"澳门中心",sub:"金融城东区"},{name:"恒健大厦",sub:"金融城东区"},{name:"广物基地白天鹅宾馆",sub:"金融城东区"},{name:"省建工科创大厦",sub:"金融城东区"}
+  ],
+  "琶洲": [
+    {name:"广报中心",sub:"互联网集聚区"},{name:"琶醍",sub:"互联网集聚区"},{name:"省国土资源数字中心",sub:"互联网集聚区"},{name:"华邦控股中心",sub:"互联网集聚区"},{name:"广州国际航运中心",sub:"互联网集聚区"},{name:"TCL大厦",sub:"互联网集聚区"},{name:"东升云鼎大厦",sub:"互联网集聚区"},{name:"三七互娱大厦",sub:"互联网集聚区"},
+    {name:"树根大厦",sub:"互联网集聚区"},{name:"奇安信大厦",sub:"互联网集聚区"},{name:"宝地广场",sub:"互联网集聚区"},{name:"宝地广场二期",sub:"互联网集聚区"},{name:"开元广场",sub:"互联网集聚区"},{name:"YY欢聚大厦",sub:"互联网集聚区"},{name:"腾讯大厦",sub:"互联网集聚区"},{name:"阿里巴巴大厦",sub:"互联网集聚区"},
+    {name:"唯品会大厦",sub:"互联网集聚区"},{name:"环球梦大厦",sub:"互联网集聚区"},{name:"铭丰广场 A塔",sub:"互联网集聚区"},{name:"铭丰广场 B塔",sub:"互联网集聚区"},{name:"小米 A塔",sub:"互联网集聚区"},{name:"小米 B塔",sub:"互联网集聚区"},{name:"国美信息大厦",sub:"互联网集聚区"},{name:"国美控股大厦",sub:"互联网集聚区"},
+    {name:"粤传媒大厦",sub:"互联网集聚区"},{name:"广发基金大厦",sub:"互联网集聚区"},{name:"粤科金融大厦",sub:"互联网集聚区"},{name:"科大讯飞大厦",sub:"互联网集聚区"},{name:"海灏国际中心",sub:"互联网集聚区"},{name:"华新中心",sub:"互联网集聚区"},{name:"远大中心",sub:"互联网集聚区"},{name:"广铝中心",sub:"互联网集聚区"},{name:"广商中心",sub:"互联网集聚区"},
+    {name:"南方传媒大厦",sub:"互联网集聚区"},{name:"名创优品中心",sub:"互联网集聚区"},{name:"星河湾中心",sub:"互联网集聚区"},{name:"赫基国际中心",sub:"互联网集聚区"},{name:"欧派家居大厦",sub:"互联网集聚区"},{name:"合鸿达大厦",sub:"互联网集聚区"},{name:"从兴电子大厦",sub:"互联网集聚区"},{name:"索菲亚大厦",sub:"互联网集聚区"},{name:"丸美大厦",sub:"互联网集聚区"},{name:"会展西岸",sub:"互联网集聚区"},
+    {name:"保利国际广场（北塔）",sub:"琶洲会展"},{name:"保利国际广场（南塔）",sub:"琶洲会展"},{name:"保利洲际酒店",sub:"琶洲会展"},{name:"保利发展广场",sub:"琶洲会展"},{name:"保利中悦广场",sub:"琶洲会展"},{name:"广州金创大厦",sub:"琶洲会展"},{name:"广州国际采购中心",sub:"琶洲会展"},{name:"保利世贸博览馆",sub:"琶洲会展"},
+    {name:"琶洲中心（西塔）",sub:"琶洲会展"},{name:"南丰汇",sub:"琶洲会展"},{name:"城投琶洲中心",sub:"琶洲会展"},{name:"中岱交易广场",sub:"琶洲会展"},{name:"中洲中心（北塔）",sub:"琶洲会展"},{name:"中洲中心（南塔）",sub:"琶洲会展"},{name:"中洲交易中心",sub:"琶洲会展"},{name:"智通广场",sub:"琶洲会展"},{name:"万胜广场",sub:"琶洲会展"},{name:"广良大厦",sub:"琶洲会展"},{name:"万胜汇·创客park",sub:"琶洲会展"},{name:"环汇北塔",sub:"琶洲会展"},{name:"环汇南塔",sub:"琶洲会展"},{name:"广交会大厦",sub:"琶洲会展"},{name:"抖音集团总部",sub:"琶洲会展"}
+  ],
+  "创意园": [
+    {name:"乐天创意园",sub:"棠下/科韵路"},{name:"棠下智汇park",sub:"棠下/科韵路"},{name:"天盈创意园",sub:"棠下/科韵路"},{name:"怡祥·盛达电子信息园",sub:"棠下/科韵路"},{name:"怡祥·大地公园",sub:"棠下/科韵路"},{name:"怡祥·棠下文创社区",sub:"棠下/科韵路"},{name:"智慧港企业孵化基地",sub:"棠下/科韵路"},{name:"浩和5G创业园",sub:"棠下/科韵路"},{name:"广州501创意园",sub:"棠下/科韵路"},{name:"T湾区优创汇",sub:"棠下/科韵路"},{name:"天河远洋创意园",sub:"棠下/科韵路"},{name:"羊城创意产业园",sub:"棠下/科韵路"},{name:"东方国际商业广场",sub:"棠下/科韵路"},{name:"信息港",sub:"棠下/科韵路"},{name:"融科商务园",sub:"棠下/科韵路"},{name:"融达商务园",sub:"棠下/科韵路"},{name:"T域创展",sub:"棠下/科韵路"},
+    {name:"有丰商业大楼",sub:"东圃/中山大道"},{name:"合创公社",sub:"东圃/中山大道"},{name:"狮子园文化创意园",sub:"东圃/中山大道"},{name:"联合社区·西区",sub:"东圃/中山大道"},{name:"联合社区·北区",sub:"东圃/中山大道"},{name:"联合社区·东区",sub:"东圃/中山大道"},{name:"汇创一号仓",sub:"东圃/中山大道"},{name:"锦达信广场",sub:"东圃/中山大道"},{name:"天银国际商贸大厦",sub:"东圃/中山大道"},{name:"鸿利商务中心",sub:"东圃/中山大道"},{name:"厚和大厦",sub:"东圃/中山大道"},{name:"粤保·昊胜",sub:"东圃/中山大道"},{name:"加悦大厦",sub:"东圃/中山大道"},{name:"汇诚大厦",sub:"东圃/中山大道"},{name:"汇勤商业大厦",sub:"东圃/中山大道"},{name:"天河广场",sub:"东圃/中山大道"},{name:"东圃商业大厦",sub:"东圃/中山大道"},{name:"祥圃商务大厦",sub:"东圃/中山大道"},{name:"时代TIT广场",sub:"东圃/中山大道"},{name:"东泷商贸城",sub:"东圃/中山大道"},{name:"汇德商业大厦",sub:"东圃/中山大道"},{name:"东盛广场",sub:"东圃/中山大道"},{name:"安定广场",sub:"东圃/中山大道"},{name:"理得信·创意院子",sub:"东圃/中山大道"},{name:"创境汇·盈科智谷",sub:"东圃/中山大道"},{name:"世恒创业Space",sub:"东圃/中山大道"},{name:"源豊大厦",sub:"东圃/中山大道"},{name:"金岸582创意园",sub:"东圃/中山大道"},
+    {name:"万胜汇·创客park",sub:"琶洲会展"},{name:"万胜科创园",sub:"琶洲会展"},{name:"琶洲会展创意园",sub:"琶洲会展"},{name:"海珠区科技产业基地琶洲会展产业园B栋",sub:"琶洲会展"},{name:"海珠区科技产业基地琶洲会展产业园C栋",sub:"琶洲会展"},{name:"工美港国际创新中心",sub:"琶洲会展"},{name:"会展东商务中心",sub:"琶洲会展"},{name:"M+创工场",sub:"琶洲会展"},{name:"启盛会展产业园",sub:"琶洲会展"},{name:"古村创墟",sub:"琶洲会展"},{name:"A+创新基地",sub:"琶洲会展"},{name:"琶洲慧科园",sub:"琶洲会展"},{name:"汇智邦",sub:"琶洲会展"},{name:"喔客工场",sub:"琶洲会展"},{name:"华域创意园",sub:"琶洲会展"},{name:"青盟创客空间",sub:"琶洲会展"},{name:"至新空间",sub:"琶洲会展"},{name:"红船港创意园",sub:"琶洲会展"},{name:"黄埔滩创意公社",sub:"琶洲会展"},{name:"叁象·文创园",sub:"琶洲会展"},    {name:"盒子琶洲院子",sub:"琶洲会展"},{name:"北岛创意园",sub:"琶洲会展"}
+  ],
+  "天河商圈": [
+    {name:"尚层"},{name:"市长大厦"},{name:"国贸大厦"},{name:"耀中广场"},{name:"中汇大厦"},{name:"中泰国际"},{name:"威立大厦"},{name:"大都会广场"},{name:"中信广场"},{name:"海航大厦"},{name:"天安大厦"},{name:"天伦大厦"},{name:"环贸中心"},{name:"恒源大厦"},{name:"帝都大厦"},{name:"寰城广场"},{name:"中旅大厦"},{name:"江河大厦"},{name:"富力天河大厦"},{name:"光大银行大厦"},{name:"太平洋保险大厦"},{name:"银汇大厦"},{name:"金山大厦"},{name:"维多利广场"},{name:"高盛大厦"},{name:"建和中心"},{name:"新创举大厦"},{name:"天河大厦"},{name:"城建大厦"},{name:"圣丰广场"},{name:"时代广场"},{name:"中石化大厦"},{name:"金中环大厦"},{name:"兴业银行大厦"},{name:"粤海大厦"},{name:"天河城"},{name:"三新大厦"},{name:"富星大厦"},{name:"正佳广场"},{name:"广晟大厦"},{name:"富海大厦"},{name:"国德大厦"},{name:"太古汇"},{name:"外经贸大厦"},{name:"财富广场"},{name:"羊城商贸中心"},{name:"金利来大厦"},{name:"南证大厦"},{name:"平安大厦"},{name:"骏源大厦"},{name:"宏发大厦"},{name:"创展中心"},{name:"万菱汇"},{name:"丰兴广场"},{name:"壬丰大厦"},{name:"展望大厦"},{name:"保利中辰广场"},{name:"信源大厦"},{name:"高科大厦"},{name:"丽柏广场"},{name:"天娱广场"},{name:"华晟大厦"},{name:"保利中宇广场"},{name:"伊顿中心"},{name:"天河商贸大厦"},{name:"尚德大厦"},{name:"文创苑"},{name:"天诚广场"},{name:"省农机研究所"},{name:"帝景商业中心"},{name:"广建大厦"},{name:"嘉逸国际酒店"},{name:"百脑汇"},{name:"龙口科技大厦"},{name:"红盾大厦"},{name:"大荣酒店"},{name:"康富来大厦"},{name:"信创大厦"}
+  ],
+  "越秀": [
+    {name:"恒建大厦"},{name:"粤能锦绣大厦"},{name:"联合大厦"},{name:"中侨大厦"},{name:"汇华商贸大厦"},{name:"东山广场"},{name:"电子大厦"},{name:"广州世贸中心"},{name:"正佳东方"},{name:"广东国际大厦"},{name:"亚洲国际大厦"},{name:"保利中环广场"},{name:"宜安广场"},{name:"广发银行大厦"},{name:"羊城同创汇"},{name:"新富大厦"},{name:"亿达大厦"},{name:"广东电信大厦"},{name:"粤运大厦"},{name:"广东外贸大厦"},{name:"丽丰中心"},{name:"东宝大厦"},{name:"璟泰289"},{name:"南方传媒大厦"},{name:"好世界广场"},{name:"珠江大厦"},{name:"荣建大厦"},{name:"新裕大厦"},{name:"富力盈东广场"},{name:"南方同创汇"},{name:"南方铁道大厦"},{name:"天誉商务大厦"},{name:"东山紫园"},{name:"力迅商务大厦"},{name:"东峻广场"},{name:"中华国际中心"},{name:"五羊新城广场"},{name:"泰恒大厦"},{name:"广东华信中心"},{name:"锦城大厦"},{name:"丰伟大厦"},{name:"珠实环东广场"},
+    {name:"东照大厦"},{name:"星寰国际广场"},{name:"瑞安广州中心"},{name:"五月花广场"},{name:"信德商务大厦"},{name:"交易广场"},{name:"珠江国际大厦"},{name:"金安大厦"},{name:"嘉业大厦"},{name:"珠江颐德大厦"},{name:"时代地产大厦"},{name:"华以泰大厦"},{name:"汇德国际"},{name:"成悦大厦"},{name:"国信大厦"},{name:"壬丰商务大厦"},{name:"越秀城市广场"},{name:"粤财大厦"},{name:"达信大厦"},{name:"东建大厦"},{name:"府前大厦"},{name:"丽丰国际"},{name:"万菱广场"},{name:"金汇大厦"},{name:"西门口"},{name:"捷泰广场"},{name:"新宝利大厦"},{name:"中旅商业大厦"},{name:"百汇广场"},{name:"大马站"},{name:"合润广场"},{name:"广百新翼"},{name:"广百商务大厦"},{name:"东方文德"},{name:"江湾商业中心"},{name:"越秀新都会"},{name:"国际银行中心"},{name:"广州国际金融大厦"},{name:"时代国际"},{name:"亚洲金融大厦"},{name:"瑞兴大厦"},{name:"康富来大厦"},{name:"临江商务大厦"},{name:"银海大厦"},{name:"蚬建商务大厦"},{name:"沿江大厦"}
+  ],
+  "番禺万博": [
+    {name:"招商城市主场"},{name:"敏捷海大大厦"},{name:"粤海广场"},{name:"天河城吉盛伟邦"},{name:"奥园国际中心"},{name:"德舜大厦"},{name:"番禺万达广场"},{name:"海印总统公馆"},{name:"敏捷上城国际"},{name:"敏捷广场"},{name:"广晟万博城"},{name:"四海城"},{name:"万博署基创意产业园"},{name:"中铁诺德中心"},{name:"荔园地产中心"},{name:"华新智汇"},{name:"金地壹阅府"},{name:"保利大都汇二期"},{name:"时代Epark番禺"},{name:"保利红馆"},{name:"奥园城市天地"},{name:"一号小镇创意园"},{name:"星河创意园"},{name:"长隆欢乐世界"},{name:"拾梦工厂"},{name:"中创汇大石云核"},{name:"协和社区"},{name:"ITC国际科创中心"},{name:"保利大都汇一期"},{name:"一亿中流时代华商"},{name:"海印又一城"},{name:"5号科创谷"},{name:"万博电商中心"},{name:"广州启迪数字大厦"},{name:"耀胜新世界"}
+  ],
+  "科学城": [
+    {name:"中移动南方基地"},{name:"OA云谷"},{name:"宏太智慧谷"},{name:"中国普天邮通工业园"},{name:"智慧金谷"},{name:"天虹科技园"},{name:"天河区国家软件产业基地"},{name:"时代Epark"},{name:"佳都智慧大厦"},{name:"万科云"},{name:"御银科技园"},{name:"万科云城"},{name:"米酷"},{name:"高科科技园"},{name:"广州互联网产业园"},{name:"东部孵化器"},{name:"光亚大厦"},{name:"万科广场"},{name:"广电智慧大厦"},{name:"天河区政务中心"},{name:"国家软件产业基地"},{name:"网易总部高新一期"},{name:"广州建筑产业研究院"},{name:"中国电信亚太信息引擎"},{name:"网易高新三期"},{name:"绿地中央广场"},{name:"合景科汇金谷"},{name:"科学城信息大厦"},{name:"云升科学园"},{name:"大观湿地公园"},{name:"TGC智慧中心"},{name:"国翔科汇城"},{name:"京华信息"},{name:"华天时代"},{name:"日航酒店"},{name:"慧创百思"},{name:"芯大厦"},{name:"科学城创意大厦"},{name:"科学城广场"},{name:"锦昊智谷"},{name:"源新大厦"},{name:"科汇园"},{name:"新塘科创园"}
+  ],
+  "五山/元岗": [
+    {name:"金颖大厦"},{name:"科技广场"},{name:"中公教育"},{name:"侨英花园"},{name:"财润国际"},{name:"颐和四季"},{name:"新燕大厦"},{name:"中创汇赛宝"},{name:"金润国际"},{name:"燕侨大厦"},{name:"力达广场"},{name:"T.I.P新光厂"},{name:"豪景花园"},{name:"5号服装小镇"},{name:"天平架装饰材料城"},{name:"中创盈科电子信息大厦"},{name:"建设大厦"},{name:"苏荷艺术园区"},{name:"银河1号科创谷"},{name:"创想公社"},{name:"技术集成大厦"},{name:"长兴智汇"},{name:"银龙大厦"},{name:"有园大学堂创新园"},{name:"世创智谷"},{name:"广州银利茶叶博览中心"},{name:"天汇LOFT"},{name:"天河新天地"},{name:"立德商务中心"},{name:"HiMonday联合办公"},{name:"天河汇通"},{name:"德顺创意园"},{name:"佳恩商贸"},{name:"融通和园"},{name:"悦汇文创园"},{name:"萌芽1968"},{name:"长湴创意园区"},{name:"睿志创意园"},{name:"盛亚创新科技园"},{name:"博纳大厦"},{name:"U觅工厂"},{name:"睿智创意园二期"},{name:"汇盈Space"},{name:"天河汇通B区"},{name:"19号大源"},{name:"创属大厦"},{name:"现象工厂"},{name:"元岗智汇Park一期"},{name:"元岗智汇Park二期"},{name:"天虹健康产业园"},{name:"沙太南路163号"},{name:"VLAB翌方"},{name:"金企科技园"},{name:"广垦商务"}
+  ]
+};
+
+let data = [];
+let section = "inquiries";
+let editingId = null;
+let detailId = null;
+let view = "board";
+
+/* ---------- sync layer: 本地 <=> Supabase 云端共享 ---------- */
+const SYNC_CFG_KEY="songguo_sync_cfg_v1";
+let syncCfg={mode:"local",url:"",anonKey:"",spaceKey:""};
+let _sb=null,_lastVersion=0,_dirty=false,_syncing=false,_booting=true,_syncTimer=null;
+function loadSyncCfg(){ try{ const r=localStorage.getItem(SYNC_CFG_KEY); if(r) Object.assign(syncCfg,JSON.parse(r)); }catch(e){} }
+function saveSyncCfg(){ try{ localStorage.setItem(SYNC_CFG_KEY,JSON.stringify(syncCfg)); }catch(e){} }
+function normalizeUrl(u){
+  u=(u||"").trim();
+  if(u.endsWith("/rest/v1/")) u=u.slice(0,-9);
+  else if(u.endsWith("/rest/v1")) u=u.slice(0,-8);
+  u=u.replace(/\/+$/,"");
+  return u;
+}
+function sbClient(){
+  if(syncCfg.mode!=="cloud"||!syncCfg.url||!syncCfg.anonKey) return null;
+  if(!window.supabase||!window.supabase.createClient){ setSyncStatus("error","Supabase 库未加载，请检查网络能否访问 CDN"); return null; }
+  if(!_sb){ try{ _sb=window.supabase.createClient(normalizeUrl(syncCfg.url),syncCfg.anonKey); }catch(e){ _sb=null; setSyncStatus("error",e&&e.message?e.message:String(e)); } }
+  return _sb;
+}
+function aggregate(){ return {data:data,bedits:bedits,ALLBUILDINGS:ALLBUILDINGS,DISTRICTS:DISTRICTS,deals:deals}; }
+function applySnapshot(s){
+  if(!s) return;
+  if(Array.isArray(s.data)) data=s.data;
+  if(s.bedits&&typeof s.bedits==="object") bedits=s.bedits;
+  if(s.ALLBUILDINGS&&typeof s.ALLBUILDINGS==="object") ALLBUILDINGS=s.ALLBUILDINGS;
+  if(Array.isArray(s.DISTRICTS)&&s.DISTRICTS.length) DISTRICTS=s.DISTRICTS;
+  if(Array.isArray(s.deals)) deals=s.deals;
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(data));}catch(e){}
+  try{localStorage.setItem(BEDIT_KEY,JSON.stringify(bedits));}catch(e){}
+  try{localStorage.setItem(BALL_KEY,JSON.stringify(ALLBUILDINGS));}catch(e){}
+  try{localStorage.setItem(DIST_KEY,JSON.stringify(DISTRICTS));}catch(e){}
+  try{localStorage.setItem(DEALS_KEY,JSON.stringify(deals));}catch(e){}
+}
+function scheduleSync(){
+  if(_booting) return;
+  if(syncCfg.mode!=="cloud") return;
+  if(!syncCfg.url||!syncCfg.anonKey||!syncCfg.spaceKey) return;
+  _dirty=true;
+  if(_syncTimer) clearTimeout(_syncTimer);
+  _syncTimer=setTimeout(()=>{ pushSnapshot(); },600);
+}
+async function pushSnapshot(force){
+  const c=sbClient(); if(!c) return;
+  if(_syncing) return;
+  _syncing=true;
+  try{
+    const rec={key:syncCfg.spaceKey,data:aggregate(),version:(_lastVersion||0)+1,updated_at:new Date().toISOString()};
+    const {error}=await c.from("workspace").upsert(rec,{onConflict:"key"});
+    if(error) throw error;
+    _lastVersion=rec.version; _dirty=false; setSyncStatus("synced");
+  }catch(e){ setSyncStatus("error",e&&e.message?e.message:String(e)); }
+  finally{ _syncing=false; }
+}
+async function pullSnapshot(onConflict){
+  const c=sbClient(); if(!c) return false;
+  try{
+    const {data:rows,error}=await c.from("workspace").select("key,data,version,updated_at").eq("key",syncCfg.spaceKey).limit(1);
+    if(error) throw error;
+    if(!rows||!rows.length){ _lastVersion=0; return false; }
+    const row=rows[0];
+    if(row.version>_lastVersion){
+      if(_dirty&&!force){ if(onConflict) onConflict(row); return "conflict"; }
+      applySnapshot(row.data); _lastVersion=row.version; _dirty=false;
+      return true;
+    }
+    return false;
+  }catch(e){ setSyncStatus("error",e&&e.message?e.message:String(e)); return false; }
+}
+async function maybePull(){
+  if(syncCfg.mode!=="cloud") return false;
+  if(!syncCfg.url||!syncCfg.anonKey||!syncCfg.spaceKey){ setSyncStatus("needcfg"); return false; }
+  setSyncStatus("syncing");
+  const r=await pullSnapshot();
+  if(r===true||r===false) setSyncStatus("synced");
+  return r===true;
+}
+function subscribeRemote(){
+  const c=sbClient(); if(!c) return;
+  try{
+    c.channel("workspace:"+syncCfg.spaceKey)
+     .on("postgres_changes",{event:"UPDATE",schema:"public",table:"workspace",filter:"key=eq."+syncCfg.spaceKey},()=>{
+        pullSnapshot((row)=>{
+          if(confirm("团队空间数据已被同事更新。\n点「确定」用云端最新版本覆盖本地；点「取消」保留本地并推回云端。")){
+            applySnapshot(row.data); _lastVersion=row.version; _dirty=false; fillSelectors(); renderRegionOptions(); fillDistrictFilters(); renderAll(); renderBuildings();
+          } else { pushSnapshot(true); }
+        });
+     })
+     .subscribe();
+  }catch(e){}
+}
+function setSyncStatus(state,msg){
+  const map={local:["本地模式","#888780"],syncing:["同步中…","#BA7517"],synced:["已同步","#3B6D11"],error:["同步失败","#A32D2D"],needcfg:["待配置","#BA7517"]};
+  const m=map[state]||["",""];
+  const label=msg?(m[0]+"："+msg):m[0];
+  const dot=document.getElementById("syncDot"),tx=document.getElementById("syncText"),tx2=document.getElementById("syncText2");
+  if(dot) dot.style.background=m[1];
+  if(tx) tx.textContent=label;
+  if(tx2&&state!=="syncing") tx2.textContent=label;
+}
+function openSync(){
+  document.getElementById("sync_mode").value=syncCfg.mode;
+  document.getElementById("sync_url").value=syncCfg.url||"";
+  document.getElementById("sync_key").value=syncCfg.anonKey||"";
+  document.getElementById("sync_space").value=syncCfg.spaceKey||"";
+  document.getElementById("syncCloudFields").style.display=syncCfg.mode==="cloud"?"block":"none";
+  document.getElementById("syncText2").textContent=syncCfg.mode==="cloud"?"当前：云端模式":"当前：本地模式";
+  document.getElementById("maskSync").classList.add("show");
+}
+function closeSync(){ document.getElementById("maskSync").classList.remove("show"); }
+function saveSyncSettings(){
+  syncCfg.mode=document.getElementById("sync_mode").value;
+  syncCfg.url=normalizeUrl(document.getElementById("sync_url").value);
+  syncCfg.anonKey=document.getElementById("sync_key").value.trim();
+  syncCfg.spaceKey=document.getElementById("sync_space").value.trim();
+  if(syncCfg.mode==="cloud"&&(!window.supabase||!window.supabase.createClient)){ setSyncStatus("error","Supabase 库未加载"); alert("Supabase 库未加载，请检查网络能否访问 CDN：cdn.jsdelivr.net"); return; }
+  saveSyncCfg(); _sb=null; _lastVersion=0;
+  if(syncCfg.mode==="cloud"){
+    if(!syncCfg.url||!syncCfg.anonKey||!syncCfg.spaceKey){ setSyncStatus("needcfg"); alert("请填完整的 URL / 匿名 Key / 空间 Key"); document.getElementById("syncText2").textContent="配置不完整"; return; }
+    setSyncStatus("syncing");
+    (async()=>{ await maybePull(); if(syncCfg.mode==="cloud"&&sbClient()) subscribeRemote(); })();
+  } else { setSyncStatus("local"); }
+  closeSync();
+}
+function testSync(){
+  const url=normalizeUrl(document.getElementById("sync_url").value);
+  const key=document.getElementById("sync_key").value.trim();
+  const space=document.getElementById("sync_space").value.trim();
+  if(!url||!key){ alert("请先填 URL 和 匿名 Key"); return; }
+  if(!window.supabase||!window.supabase.createClient){ document.getElementById("syncText2").textContent="连接失败：Supabase 库未加载，请检查网络能否访问 cdn.jsdelivr.net"; return; }
+  try{
+    const c=window.supabase.createClient(url,key);
+    c.from("workspace").select("key").eq("key",space||"__test__").limit(1).then(({error})=>{
+      document.getElementById("syncText2").textContent=error?("连接失败："+error.message):"连接成功 ✓";
+    });
+  }catch(e){ document.getElementById("syncText2").textContent="连接失败："+(e&&e.message?e.message:e); }
+}
+function doPush(){ if(syncCfg.mode!=="cloud"){alert("当前为本地模式，请先在设置里切到云端并填好配置");return;} pushSnapshot(true); document.getElementById("syncText2").textContent="已触发同步"; }
+function doPull(){
+  if(syncCfg.mode!=="cloud"){alert("当前为本地模式");return;}
+  pullSnapshot((row)=>{
+    if(confirm("云端已有更新。\n点「确定」用云端覆盖本地；点「取消」保留本地并推回云端。")){
+      applySnapshot(row.data); _lastVersion=row.version; _dirty=false; fillSelectors(); renderRegionOptions(); fillDistrictFilters(); renderAll(); renderBuildings(); document.getElementById("syncText2").textContent="已拉取云端";
+    } else { pushSnapshot(true); document.getElementById("syncText2").textContent="已推回本地"; }
+  });
+}
+
+function load(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){ data = JSON.parse(raw); }
+    else { seed(); save(); }
+  }catch(e){ data = []; }
+}
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); scheduleSync(); }
+function seed(){
+  const t = Date.now(), day = 86400000;
+  data = [
+    {id:uid(),company:"云启科技",contact:"王总/CEO",industry:"金融科技",area:1200,budget:160,regions:["珠江新城","金融城"],source:"转介绍",stage:"带看",expect:iso(t+20*day),next:iso(t+2*day),remark:"需近地铁、可冠名大堂",followups:[{date:iso(t-5*day),content:"首次电话，确认预算与面积",next:"发送 3 个候选楼盘"},{date:iso(t-1*day),content:"带看珠江新城 A 座 15F",next:"周五前出对比表"}],createdAt:t,updatedAt:t},
+    {id:uid(),company:"木墨文创",contact:"林小姐/主理人",industry:"文创设计",area:350,budget:90,regions:["琶洲","创意园"],source:"微信",stage:"需求确认",expect:iso(t+15*day),next:iso(t-1*day),remark:"偏好 LOFT、有展示面",followups:[{date:iso(t-3*day),content:"微信沟通，初步需求",next:"约线下看创意园"},{date:iso(t-1*day),content:"待回访确认时间",next:"今日回访"}],createdAt:t,updatedAt:t},
+    {id:uid(),company:"恒通供应链",contact:"陈经理",industry:"物流",area:2000,budget:110,regions:["金融城"],source:"线上端口",stage:"房源匹配",expect:iso(t+30*day),next:iso(t+4*day),remark:"国企背景，流程长",followups:[{date:iso(t-2*day),content:"收集 5 个备选，待内部评审",next:"补充 金融城 新盘"},{date:iso(t+1*day),content:"计划补充资料",next:"下周初对接"}],createdAt:t,updatedAt:t},
+    {id:uid(),company:"星河传媒",contact:"赵总监",industry:"新媒体",area:600,budget:130,regions:["琶洲"],source:"老客户",stage:"成交",expect:iso(t-10*day),next:"",remark:"已签约琶洲 B 座 8F",followups:[{date:iso(t-12*day),content:"谈判租金与免租期",next:"出合同"},{date:iso(t-10*day),content:"签约完成",next:"—"}],createdAt:t,updatedAt:t},
+    {id:uid(),company:"远方贸易",contact:"刘先生",industry:"贸易",area:450,budget:120,regions:["珠江新城"],source:"微信",stage:"流失",expect:iso(t-20*day),next:"",remark:"转向自建物业，暂停租赁",followups:[{date:iso(t-25*day),content:"初步沟通",next:"待反馈"},{date:iso(t-20*day),content:"客户告知暂停",next:"—"}],createdAt:t,updatedAt:t}
+  ];
+}
+function uid(){ return Math.random().toString(36).slice(2,9); }
+function iso(d){ const x=new Date(d); return x.toISOString().slice(0,10); }
+
+/* ---------- helpers ---------- */
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function dueInfo(next){
+  if(!next) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const d = new Date(next+"T00:00:00");
+  const diff = Math.round((d - today)/86400000);
+  if(diff < 0) return {cls:"over",text:"逾期 "+(-diff)+" 天"};
+  if(diff <= 3) return {cls:"soon",text:"还剩 "+diff+" 天"};
+  return null;
+}
+function filtered(){
+  const fs=document.getElementById("fStage").value, fr=document.getElementById("fRegion").value,
+        fi=document.getElementById("fIndustry").value, fq=document.getElementById("fSearch").value.trim().toLowerCase();
+  return data.filter(x=>{
+    if(fs && x.stage!==fs) return false;
+    if(fr && !(x.regions||[]).includes(fr)) return false;
+    if(fi && x.industry!==fi) return false;
+    if(fq){ const hay=(x.company+" "+(x.contact||"")+" "+(x.remark||"")+" "+(x.industry||"")).toLowerCase(); if(!hay.includes(fq)) return false; }
+    return true;
+  });
+}
+
+/* ---------- render: stats ---------- */
+function renderStats(){
+  const now=new Date(); const y=now.getFullYear(), m=now.getMonth();
+  const monthNew = data.filter(x=>{ const d=new Date(x.createdAt); return d.getFullYear()===y&&d.getMonth()===m; }).length;
+  const active = data.filter(x=>x.stage!=="成交"&&x.stage!=="流失").length;
+  const deal = data.filter(x=>x.stage==="成交").length;
+  const lost = data.filter(x=>x.stage==="流失").length;
+  const due = data.filter(x=>{ const i=dueInfo(x.next); return i&&(i.cls==="over"||i.cls==="soon"); }).length;
+  const cards=[
+    {num:data.length,lbl:"总询盘"},
+    {num:monthNew,lbl:"本月新增"},
+    {num:active,lbl:"进行中",cls:""},
+    {num:deal,lbl:"成交",cls:"ok"},
+    {num:lost,lbl:"流失",cls:""},
+    {num:due,lbl:"待跟进",cls:due?"alert":""}
+  ];
+  document.getElementById("stats").innerHTML = cards.map(c=>
+    `<div class="stat ${c.cls||""}"><div class="num">${c.num}</div><div class="lbl">${c.lbl}</div></div>`).join("");
+}
+
+/* ---------- render: board ---------- */
+function renderBoard(){
+  const list = filtered();
+  const cols = STAGES.map(st=>({st, items:list.filter(x=>x.stage===st)})).filter(c=>c.items.length||c.st!=="流失"||true);
+  document.getElementById("board").innerHTML = cols.map(c=>{
+    const isDeal=c.st==="成交", isLost=c.st==="流失";
+    return `<div class="col ${isDeal?'deal':''} ${isLost?'lost':''}">
+      <h3>${esc(c.st)}<span class="cnt">${c.items.length}</span></h3>
+      ${c.items.map(x=>cardHTML(x)).join("")}
+    </div>`;
+  }).join("");
+  document.querySelectorAll(".card").forEach(el=>el.onclick=()=>openDetail(el.dataset.id));
+}
+function cardHTML(x){
+  const di=dueInfo(x.next);
+  const tags=(x.regions||[]).map(r=>`<span class="tag">${esc(r)}</span>`).join("");
+  return `<div class="card" data-id="${x.id}">
+    <div class="co">${esc(x.company)}</div>
+    <div class="meta">${x.industry||"—"} · ${x.area?x.area+"㎡":""} · ${x.budget?x.budget+"元/㎡":""}</div>
+    <div>${tags}</div>
+    ${di?`<div class="due ${di.cls}">${di.text}</div>`:""}
+  </div>`;
+}
+
+/* ---------- render: list ---------- */
+function renderList(){
+  const list=filtered();
+  if(!list.length){ document.getElementById("list").innerHTML='<div class="empty">没有匹配的询盘，换个筛选条件试试。</div>'; return; }
+  const rows=list.map(x=>{
+    const di=dueInfo(x.next);
+    const pcls = x.stage==="成交"?"deal":x.stage==="流失"?"lost":"";
+    return `<tr data-id="${x.id}">
+      <td><b>${esc(x.company)}</b>${x.contact?`<br><span style="color:var(--gray-500);font-size:12px">${esc(x.contact)}</span>`:""}</td>
+      <td>${esc(x.industry||"—")}</td>
+      <td>${x.area?x.area+"㎡":"—"}</td>
+      <td>${x.budget?x.budget:"—"}</td>
+      <td>${(x.regions||[]).join("、")||"—"}</td>
+      <td><span class="pill ${pcls}">${esc(x.stage)}</span></td>
+      <td>${di?`<span class="due-cell ${di.cls}">${di.text}</span>`:"<span style='color:var(--gray-300)'>—</span>"}</td>
+    </tr>`;
+  }).join("");
+  document.getElementById("list").innerHTML=`<table><thead><tr>
+    <th>客户 / 联系人</th><th>行业</th><th>面积</th><th>预算</th><th>片区</th><th>阶段</th><th>跟进</th>
+  </tr></thead><tbody>${rows}</tbody></table>`;
+  document.querySelectorAll("#list tr[data-id]").forEach(el=>el.onclick=()=>openDetail(el.dataset.id));
+}
+
+function renderAll(){ renderStats(); if(view==="board"){renderBoard();}else{renderList();} }
+
+/* ---------- building database: edits + map ---------- */
+const MAPS = {
+  "珠江新城": ["maps/p1.jpg"],
+  "金融城": ["maps/p3.jpg","maps/p4.jpg"],
+  "琶洲": ["maps/p9.jpg","maps/p10.jpg"],
+  "创意园": ["maps/p5.jpg","maps/p6.jpg","maps/p11.jpg"],
+  "天河商圈": ["maps/p2.jpg"],
+  "越秀": ["maps/p12.jpg","maps/p13.jpg"],
+  "番禺万博": ["maps/p14.jpg"],
+  "科学城": ["maps/p7.jpg"],
+  "五山/元岗": ["maps/p8.jpg"]
+};
+const BEDIT_KEY="songguo_building_edits_v1";
+let bedits={};
+let bcur=null;
+function loadBEdits(){
+  try{const r=localStorage.getItem(BEDIT_KEY); if(r) bedits=JSON.parse(r);}catch(e){bedits={};}
+  if(typeof BUILDING_SEED==="object"){
+    let ch=false;
+    for(const k in BUILDING_SEED){ if(!bedits[k]){ bedits[k]=JSON.parse(JSON.stringify(BUILDING_SEED[k])); ch=true; } }
+    if(ch) saveBEdits();
+  }
+}
+function saveBEdits(){ localStorage.setItem(BEDIT_KEY, JSON.stringify(bedits)); scheduleSync(); }
+function bkey(d,n){ return d+"|"+n; }
+function getBEdits(d,n){ return bedits[bkey(d,n)]||{}; }
+function mergedBuildings(district){ return (ALLBUILDINGS[district]||[]).map(b=>({...b, ...getBEdits(district,b.name)})); }
+
+/* ===== 琶洲盘源 seed (导入自 琶洲盘总结.xlsx) ===== */
+const BUILDING_SEED={
+"琶洲|TCL大厦": {
+"rent_quote": "110",
+"mgmt": "23",
+"ac": "24小时",
+"parking": "月保：固定2200元/月，非固定1600元/月\n临停8元/月，封顶64元",
+"metro": "8号磨碟沙到H口步行19分钟\n18号磨碟沙H口11分钟",
+"reno": "可带定制化装修，包家具"
+},
+"琶洲|东升": {
+"rent_quote": "138",
+"rent_floor": "130",
+"mgmt": "25",
+"ac": "24小时",
+"parking": "月保：非固定1600元/月\n临停8元，64元封顶",
+"metro": "8号磨碟沙到H口步行18分钟\n18号磨碟沙H口11分钟",
+"reno": "包简单的定制装修"
+},
+"琶洲|奇安信大厦": {
+"rent_quote": "85",
+"rent_floor": "75",
+"mgmt": "25",
+"deposit": "2年起租\n3押1付",
+"ac": "周一至周日08：00-22：00（0.35元/kw•h）\n周一至周日22：00-08：00，及法定节假日全天（1.5元/kw•h）",
+"parking": "普通车位（08：00-20：00），月保1200元。\n普通车位夜间（20：00-08：00），月保400元。\n普通车位24小时制月保1600元。\n固定车位24小时制月保2200元。\n临停前30分钟免费，超30分钟收费标准如下：\n日间（08：00-20：00）12元/小时。\n夜间（20：00-08：00）5元/小时。\n24小时累计封顶128元。",
+"metro": "8号磨碟沙到H口步行18分钟\n18号磨碟沙H口10分钟",
+"reno": "二房东，定制化装修，包家居"
+},
+"琶洲|粤传媒大厦": {
+"rent_quote": "110",
+"rent_floor": "95（面价最低）",
+"mgmt": "25",
+"free": "3年3个月免租期",
+"deposit": "2押1付",
+"ac": "24小时",
+"parking": "临保12元/小时\n一日65元封顶\n月保1500元/月",
+"metro": "8号磨碟沙到H口步行22分钟\n18号磨碟沙H口14分钟\n可以走地铁地下通道到楼内",
+"reno": "可定制化装修，不包家具"
+},
+"琶洲|宝地广场": {
+"rent_quote": "118-125",
+"rent_floor": "96",
+"mgmt": "32",
+"ac": "星期一至星期五8:00-19:00和星期六8:00-13:00，法定节假日（含调休日）关闭。",
+"parking": "24小时固定月保1500元/月（含物管费），24小时非固定月保1200元/月（含物管费），临停6元/小时（6折），24小时96元封顶",
+"metro": "8号磨碟沙到H口步行16分钟\n18号磨碟沙H口8分钟",
+"reno": "定制化装修首期款项要三押+三付\n装修标准900元/平方米包家具"
+},
+"琶洲|开元广场": {
+"rent_quote": "135-145",
+"rent_floor": "125",
+"mgmt": "35",
+"ac": "周一至周五8:00-19:00，周六8:00-13:00",
+"parking": "24小时月保：1500元/月 \n日间12小时日保：8:00-20:00:1200元/月 \n夜间12小时日保：20:00-8:00:900元/月 \n临停：8:00-22:00 12元/小时，22:00-8:00 5元/小时，24小时（含）内最高限价128元/天",
+"metro": "8号磨碟沙到H口步行15分钟\n18号磨碟沙H口8分钟",
+"reno": "否"
+},
+"琶洲|YY欢聚大厦": {
+"rent_quote": "招商只说了全包价",
+"mgmt": "35",
+"ac": "周一至周五8:00-19:00，周六8:00-12:30",
+"parking": "月保1200-2000元/月/个",
+"metro": "8号磨碟沙到H口步行18分钟\n18号磨碟沙H口10分钟",
+"reno": "可带定制化装修，包家具",
+"note": "二房东目前只有两套（26.07.06）"
+},
+"琶洲|唯品会大厦": {
+"rent_quote": "135",
+"mgmt": "35",
+"ac": "周一至周五8:30-19:00，周六8:00-12:30",
+"parking": "月保车位: 1,800元/月\n临保车位: 8元/小时，64元/天封顶",
+"metro": "8号磨碟沙到H口步行23分钟\n18号磨碟沙H口15分钟",
+"reno": "否",
+"note": "目前只有一套1000多方的（26.07.06）"
+},
+"琶洲|环球梦大厦": {
+"note": "还没问过"
+},
+"琶洲|铭丰广场 B塔": {
+"rent_quote": "145（顶楼）",
+"mgmt": "35",
+"ac": "周一至周五8:30-19:00，周六8:30-12:00",
+"parking": "月保：1300元/月（1050元租金，250元管理费）\n临停12元/h，封顶128元/天",
+"metro": "8号磨碟沙到H口步行16分钟\n18号磨碟沙H口8分钟",
+"note": "其他还没问过，目前问只剩顶楼（26.5.8）"
+},
+"琶洲|小米": {
+"rent_quote": "120",
+"mgmt": "33",
+"ac": "周一至周五8:00-19:00，周六8:00-12:00",
+"parking": "月保1500元/月/个（含管理费）",
+"metro": "8号磨碟沙到H口步行17分钟\n18号磨碟沙H口9分钟",
+"reno": "否",
+"note": "还没问过，小米没定制化装修"
+},
+"琶洲|国美信息大厦": {
+"ac": "周一至周五 8:30-20:00",
+"parking": "车位临停：8:00-20:00 10元/小时，20:00-8:003元/小时，封顶68元/天。\n月保1200元/月（不固定车位）\n月保1800元/月（固定车位",
+"metro": "8号磨碟沙到H口步行19分钟\n18号磨碟沙H口11分钟",
+"note": "还没问过"
+},
+"琶洲|海灏国际中心": {
+"rent_quote": "100（96-110）",
+"mgmt": "35",
+"ac": "周一至周五：8:30-19:30，周六：8:00-13:00",
+"parking": "8:00-19:00点  12元/H，19:00-8:00  5元./，封顶128元/24H\n非固定车位月保：1500元/月（含300元车位管理费）",
+"metro": "8号磨碟沙到H口步行6分钟\n18号磨碟沙H口14分钟",
+"reno": "否",
+"note": "去踩了盘，大厦整体调性还是很高的，目前琶洲唯一可售的写字楼，顶层是大平层公寓"
+},
+"琶洲|索菲亚大厦": {
+"mgmt": "30",
+"ac": "周一至周五8:00-18:30、周六：8：00-13:00",
+"parking": "租户800元/小时（非固定）\n临停：白天8元/H，晚上2元/H",
+"metro": "8号磨碟沙到H口步行4分钟\n18号磨碟沙H口12分钟",
+"reno": "否",
+"note": "整个楼调性一般，走性价比的路子，目前全层不切，不包装修，目前出租率比较高"
+},
+"琶洲|丸美": {
+"note": "去踩了盘，楼顶是公寓，目前没有可出租的单元"
+},
+"琶洲|华新中心": {
+"rent_quote": "93",
+"mgmt": "35",
+"ac": "周一到周五8:00-21:00；周六8：00-12: 30",
+"parking": "临停8:00-20：00为4元/30分钟白天12小时 64封顶\n20:00至次日8:00为2元/30分钟，夜间12小时10元封顶；\n月保固定车位1600元/月含管理费，非固定1000元/月含管理费，车月保管理费200块/月；",
+"metro": "8号磨碟沙到H口步行6分钟\n18号磨碟沙H口14分钟",
+"reno": "否",
+"note": "楼品质还可以，不做定制化装修"
+},
+"琶洲|广铝中心": {
+"ac": "周一至周五 8:00-22:00\n周六 9:00-12:30",
+"parking": "临停：16元/小时\n月保：固定2200元/月，非固定1600元/月",
+"metro": "8号磨碟沙到H口步行6分钟\n18号磨碟沙H口13分钟"
+},
+"琶洲|星河湾中心": {
+"rent_quote": "135-140",
+"rent_floor": "100",
+"mgmt": "35",
+"ac": "周一至周五8:30-20:00\n周六8：30-12：30",
+"parking": "固定月保2100元，非固定月保1500元，临停\n16元/小时，128元/天封顶",
+"metro": "8号磨碟沙到H口步行17分钟\n18号磨碟沙H口10分钟"
+},
+"琶洲|赫基大厦": {
+"rent_quote": "125",
+"rent_floor": "95-105",
+"mgmt": "35",
+"ac": "周一至周五8:30-19:30\n周六8:30-13:00，（不包括法定节假日）",
+"parking": "1400元月含管（租户优惠800元月含管）\n临停12元小时，96元封顶",
+"metro": "8号磨碟沙到H口步行17分钟\n18号磨碟沙H口11分钟",
+"reno": "是"
+},
+"琶洲|欧派家居大厦": {
+"rent_quote": "90",
+"mgmt": "35",
+"ac": "周一至周五8：30-22：00\n周六9：00-18：00",
+"parking": "1200元/月固定车位，非固定车位800元/月\n临停8元/小时",
+"metro": "8号磨碟沙到H口步行18分钟\n18号磨碟沙H口14分钟",
+"reno": "定制，估算每平米➕10-15元"
+},
+"琶洲|环球贸易中心": {
+"rent_quote": "115-120",
+"rent_floor": "90",
+"mgmt": "30",
+"ac": "空调开放时间：一至五：8:00-18：30\n周六：8:00-12:00",
+"parking": "月保：800非固定，1000/月固定\n含车位管理费，临停8元/小时",
+"metro": "8号磨碟沙到H口步行6分钟\n18号磨碟沙H口14分钟",
+"reno": "可以"
+},
+"琶洲|树根大厦": {
+"rent_quote": "120-150",
+"mgmt": "35",
+"reno": "否",
+"note": "很高级的大楼，贵贵楼之一，西塔有顶奢酒店，东塔也有洲际酒店旗下的新品牌，目前6-13楼包给MFG做装修出租了，5楼可以做天地墙交付"
+},
+"琶洲|保利国际广场北塔": {
+"rent_floor": "70\n（有效租金）",
+"mgmt": "30",
+"ac": "周一-周五，早八晚六\n加5元工作日空调延长至晚上10点，加4元可开周六日空调早八晚六",
+"parking": "月保1200，临保8元，一天64封顶",
+"reno": "是"
+},
+"琶洲|琶洲中心（西塔）": {
+"rent_quote": "低区100",
+"mgmt": "25",
+"ac": "分体空调，24小时",
+"reno": "否",
+"note": "隔壁是广财校区，对面是广交会展馆"
+},
+"琶洲|南丰汇": {
+"rent_quote": "95（4楼，租+管+装修+24小时空调全包）",
+"mgmt": "32",
+"ac": "周一-周五 8:30-18:30",
+"parking": "月保1200/个，临时12元/小时，封顶96元/天",
+"metro": "地铁8号线新港东站地铁上盖F出口",
+"reno": "是",
+"note": "可能会有客户介意南丰汇的外形像棺材，4楼便宜可能是因为没窗户"
+},
+"琶洲|保利世界贸易中心": {
+"rent_quote": "二房东100全包\n业主（以G座大业主省广集团为例）\n租金90-95，管理费11",
+"mgmt": "11",
+"ac": "西塔是工作日写字楼空调，其他几栋都是24小时空调",
+"note": "卖散了，全是二房东和小业主。目前只有保利世贸西塔（没有24小时空调），E座和G座有租赁单元（300方左右，7.17），G座是省广是大业主，2-4楼，15-25楼都是他们自持的"
+},
+"琶洲|保利发展广场": {
+"rent_quote": "110\nkyle说有效租金能做到90",
+"mgmt": "33",
+"ac": "偶发性加时空调\n1000平米以下350元/时，1000平米以上450元/时\n工作日固定加时空调优惠：\n+5元/平米延时至22:00\n+10元/平米延时至2:00\n+15元/平米24小时",
+"metro": "步行5分钟即可到达地铁8/4交汇站-万胜围站",
+"reno": "是"
+},
+"琶洲|保利中悦广场": {
+"rent_quote": "115",
+"mgmt": "30",
+"ac": "管理费+5元周一到周五8:00-22:30，周六8:00-12:30",
+"reno": "是"
+},
+"琶洲|广州金创大厦": {
+"rent_quote": "85（口头成交价）",
+"mgmt": "28",
+"ac": "工作日8:00—18：00\n34块周一-周六能到晚上11点",
+"metro": "地铁4、8号线——万胜围站，步行7-8分钟。",
+"note": "jaycie说先不主推这个盘（出现过带看，业主透露消息给另一个中介的情况），目前还是有点贵"
+},
+"琶洲|万胜广场": {
+"rent_quote": "128",
+"rent_floor": "82-87",
+"mgmt": "28",
+"free": "三年三个月",
+"ac": "中央空调周一-周五8:30-18:30，周六8:30-12:00，可通过加装空调实现24小时空调",
+"metro": "地铁4/8号线万胜围地铁上盖，广铁总部",
+"reno": "否",
+"note": "国企物业定制化装修流程长，需要客户自己装，完全现状交付，空调都需要自己装。\n大部分租户都是广铁的上下游企业，国企居多，私企较少，接受电商游戏业态，金融业可能过不了审批"
+},
+"琶洲|智通广场": {
+"rent_quote": "85-90",
+"rent_floor": "有效租金110全包",
+"mgmt": "33",
+"ac": "周一-周六中央空调可以做到8:30-24:00，可通过加装空调实现24小时空调",
+"metro": "地铁4/8号线万胜围地铁步行十分钟，icp隔壁",
+"reno": "是",
+"note": "楼层没有很高，以大租户全层或半层为主"
+},
+"琶洲|环汇北塔": {
+"rent_floor": "口头底价110（租+管）\n现状交付",
+"mgmt": "30",
+"ac": "周一至周五09：00-19:00，周六09:00-12:30\n可以申请周一到周五到晚上的10点，然后周六到晚上的8点",
+"metro": "地铁4/8号线万胜围地铁步行十分钟，智通广场隔壁",
+"reno": "是"
+},
+"琶洲|琶洲新村": {
+"rent_quote": "75全包",
+"ac": "分体空调，24小时",
+"metro": "地铁4/8号线万胜围地铁站D口出来步行5分钟",
+"reno": "二房东全包",
+"note": "公寓改成的办公楼，商业和办公混着，有点像万达公寓的感觉，在保利广场隔壁"
+},
+"琶洲|A+创新港": {
+"rent_quote": "95-105",
+"reno": "是，结合条款谈"
+},
+"琶洲|万胜汇·创客park": {
+"metro": "地铁4/8号线万胜围地铁站步行3分钟",
+"note": "琶洲万胜围片区唯一创意园，听万胜广场招商说有拆迁计划，园区整体有点旧"
+}
+};
+const NEW_PAZHOU=[
+{"name": "东升"},
+{"name": "小米"},
+{"name": "丸美"},
+{"name": "赫基大厦"},
+{"name": "环球贸易中心"},
+{"name": "保利国际广场北塔"},
+{"name": "保利世界贸易中心"},
+{"name": "琶洲新村"},
+{"name": "A+创新港"}
+];
+if(NEW_PAZHOU&&NEW_PAZHOU.length) BUILDINGS["琶洲"]=BUILDINGS["琶洲"].concat(NEW_PAZHOU);
+
+const B_FIELDS=[
+  {k:"rent_quote", label:"租金报价（元/㎡/月）"},
+  {k:"rent_floor", label:"租金底价"},
+  {k:"mgmt", label:"管理费"},
+  {k:"free", label:"免租期"},
+  {k:"deposit", label:"押金"},
+  {k:"ac", label:"空调"},
+  {k:"parking", label:"停车费"},
+  {k:"metro", label:"地铁交通"},
+  {k:"reno", label:"是否定制装修"},
+  {k:"area", label:"面积段（㎡）"},
+  {k:"grade", label:"楼宇等级"},
+  {k:"status", label:"租售状态"},
+  {k:"note", label:"备注"}
+];
+const B_CHIP=["rent_quote","rent_floor","free","mgmt","grade","reno","status","area"];
+const B_CHIP_LABEL={rent_quote:"租",rent_floor:"底",free:"免",mgmt:"管",grade:"级",reno:"装",status:"态",area:"面"};
+function fieldTags(b){
+  const t=[];
+  for(const k of B_CHIP){ if(b[k]) t.push(`<span class="bfield">${B_CHIP_LABEL[k]} ${esc(b[k])}</span>`); }
+  return t.join("");
+}
+
+/* ---------- 可变楼盘数据集（支持新增 / 跨片区移动 / 自定义片区） ---------- */
+const BALL_KEY="songguo_buildings_all_v1";
+const DIST_KEY="songguo_districts_v1";
+const BASE_DISTRICTS=["珠江新城","金融城","琶洲","创意园","天河商圈","越秀","番禺万博","科学城","五山/元岗"];
+let ALLBUILDINGS={};
+let DISTRICTS=[];
+function loadDistricts(){
+  try{ const r=localStorage.getItem(DIST_KEY); if(r){ const a=JSON.parse(r); if(Array.isArray(a)&&a.length) DISTRICTS=a; } }catch(e){}
+  if(!DISTRICTS.length) DISTRICTS=BASE_DISTRICTS.slice();
+}
+function saveDistricts(){ localStorage.setItem(DIST_KEY, JSON.stringify(DISTRICTS)); scheduleSync(); }
+function initAllBuildings(){
+  let raw=localStorage.getItem(BALL_KEY);
+  if(raw){ try{ ALLBUILDINGS=JSON.parse(raw); }catch(e){ ALLBUILDINGS={}; } }
+  if(!ALLBUILDINGS || !Object.keys(ALLBUILDINGS).length){
+    ALLBUILDINGS={};
+    for(const d in BUILDINGS){ ALLBUILDINGS[d]=(BUILDINGS[d]||[]).map(b=>({...b})); }
+    saveAllBuildings();
+  }
+  // 确保每个已知片区在 ALLBUILDINGS 都有槽位（新建的空片区也要能显示）
+  for(const d of DISTRICTS){ if(!ALLBUILDINGS[d]) ALLBUILDINGS[d]=[]; }
+  saveAllBuildings();
+}
+function saveAllBuildings(){ localStorage.setItem(BALL_KEY, JSON.stringify(ALLBUILDINGS)); scheduleSync(); }
+function districtsList(){ return DISTRICTS; }
+/* 新增片区：返回 true 成功，false 表示已存在 */
+function addDistrict(name){
+  name=(name||"").trim(); if(!name) return false;
+  if(DISTRICTS.includes(name)){ alert("片区「"+name+"」已存在"); return false; }
+  DISTRICTS.push(name); saveDistricts();
+  if(!ALLBUILDINGS[name]) ALLBUILDINGS[name]=[];
+  saveAllBuildings();
+  return true;
+}
+function findBuilding(d,n){ return (ALLBUILDINGS[d]||[]).find(b=>b.name===n); }
+/* 新增楼盘：返回 true 成功，false 表示片区已存在同名 */
+function addBuilding(d,name,sub,rec){
+  name=(name||"").trim(); if(!name) return false;
+  ALLBUILDINGS[d]=ALLBUILDINGS[d]||[];
+  if(ALLBUILDINGS[d].some(b=>b.name===name)) return false;
+  const rec2={name}; if(sub&&sub.trim()) rec2.sub=sub.trim();
+  ALLBUILDINGS[d].push(rec2); saveAllBuildings();
+  if(rec && Object.keys(rec).length){ bedits[bkey(d,name)]=rec; saveBEdits(); }
+  return true;
+}
+/* 跨片区移动 / 重命名：返回 true 成功，false 表示目标片区已存在同名 */
+function moveBuilding(oldD,oldN,newD,newN){
+  newN=(newN||"").trim()||oldN;
+  if(!ALLBUILDINGS[oldD]) return false;
+  const idx=ALLBUILDINGS[oldD].findIndex(b=>b.name===oldN);
+  if(idx<0) return false;
+  if((newD!==oldD || newN!==oldN) && ALLBUILDINGS[newD] && ALLBUILDINGS[newD].some(b=>b.name===newN)) return false;
+  const rec=ALLBUILDINGS[oldD][idx];
+  rec.name=newN;
+  ALLBUILDINGS[oldD].splice(idx,1);
+  ALLBUILDINGS[newD]=ALLBUILDINGS[newD]||[];
+  ALLBUILDINGS[newD].push(rec);
+  saveAllBuildings();
+  const oldKey=bkey(oldD,oldN), newKey=bkey(newD,newN);
+  if(oldKey!==newKey){
+    if(bedits[oldKey]){ bedits[newKey]=bedits[oldKey]; delete bedits[oldKey]; saveBEdits(); }
+    migrateTrackerKeys(oldD,oldN,newD,newN);
+  }
+  return true;
+}
+/* 楼盘移动/重命名时，同步迁移所有询盘里的追踪键（已问/合适/不合适/笔记） */
+function migrateTrackerKeys(oldD,oldN,newD,newN){
+  const oldKey=bkey(oldD,oldN), newKey=bkey(newD,newN);
+  if(oldKey===newKey) return;
+  let ch=false;
+  (data||[]).forEach(x=>{
+    ["asked","suitable","unsuitable","bnotes"].forEach(f=>{
+      const obj=x[f]; if(obj && obj[oldKey]!==undefined){ obj[newKey]=obj[oldKey]; delete obj[oldKey]; ch=true; }
+    });
+  });
+  if(ch) save();
+}
+
+/* ---------- render: buildings ---------- */
+function renderBuildings(){
+  const q=document.getElementById("bSearch").value.trim().toLowerCase();
+  const r=document.getElementById("bRegion").value;
+  const container=document.getElementById("districts");
+  container.innerHTML="";
+  for(const district of districtsList()){
+    if(r && r!==district) continue;
+    const merged=mergedBuildings(district);
+    const shown=q?merged.filter(b=>{
+      const blob=(b.name+" "+(b.sub||"")+" "+B_FIELDS.map(f=>b[f.k]||"").join(" ")).toLowerCase();
+      return blob.includes(q);
+    }):merged;
+    if(!shown.length && q) continue;
+    const cards=shown.map(b=>`<span class="b-edit" data-d="${esc(district)}" data-n="${esc(b.name)}">${esc(b.name)}${b.sub?` <span class="sub">(${esc(b.sub)})</span>`:""}${fieldTags(b)}</span>`).join("");
+    container.insertAdjacentHTML("beforeend",`<div class="dist"><h3>${esc(district)}<span class="cnt">${shown.length} 个</span></h3><div class="b-list">${cards}</div></div>`);
+  }
+  if(!container.innerHTML) container.innerHTML='<div class="empty">没有匹配的楼盘，换个关键词试试。</div>';
+  container.querySelectorAll(".b-edit").forEach(el=>el.onclick=()=>openBuilding(el.dataset.d,el.dataset.n));
+}
+function openBuilding(d,n){
+  bcur={d,n};
+  const b=getBEdits(d,n);
+  const base=ALLBUILDINGS[d].find(x=>x.name===n)||{};
+  document.getElementById("b_district").innerHTML=districtsList().map(x=>`<option ${x===d?'selected':''}>${esc(x)}</option>`).join("");
+  document.getElementById("b_name").value=n;
+  document.getElementById("b_sub").textContent=(base.sub?`（${base.sub}）`:"") + "修改「所属片区」可移动楼盘；修改「楼盘名称」可重命名";
+  const box=document.getElementById("b_fields");
+  box.innerHTML=B_FIELDS.map(f=>`<div class="form-row${f.k==='note'?' full':''}"><label>${f.label}</label>${f.k==='note'?'<textarea id="bf_'+f.k+'" rows="3"></textarea>':'<input type="text" id="bf_'+f.k+'" />'}</div>`).join("");
+  B_FIELDS.forEach(f=>{ const el=document.getElementById("bf_"+f.k); if(el) el.value=b[f.k]||""; });
+  document.getElementById("maskBuilding").classList.add("show");
+  setTimeout(()=>document.getElementById("b_name").focus(),0);
+}
+function saveBuilding(){
+  if(!bcur) return;
+  const nd=document.getElementById("b_district").value;
+  const nn=document.getElementById("b_name").value.trim();
+  if(!nn){ alert("楼盘名称不能为空"); return; }
+  const rec={};
+  B_FIELDS.forEach(f=>{ const el=document.getElementById("bf_"+f.k); const v=el?el.value.trim():""; if(v) rec[f.k]=v; });
+  if(nd!==bcur.d || nn!==bcur.n){
+    if(!moveBuilding(bcur.d,bcur.n,nd,nn)){ alert("目标片区已存在同名楼盘，无法移动 / 重命名"); return; }
+  }
+  const key=bkey(nd,nn);
+  if(Object.keys(rec).length) bedits[key]=rec; else delete bedits[key];
+  saveBEdits(); saveAllBuildings(); renderBuildings();
+  document.getElementById("maskBuilding").classList.remove("show"); bcur=null;
+}
+function closeBuilding(){ document.getElementById("maskBuilding").classList.remove("show"); bcur=null; }
+
+/* ---------- 新增楼盘 ---------- */
+function openAddBuilding(){
+  document.getElementById("ab_district").innerHTML=districtsList().map(x=>`<option>${esc(x)}</option>`).join("");
+  document.getElementById("ab_name").value="";
+  document.getElementById("ab_sub").value="";
+  const box=document.getElementById("ab_fields");
+  box.innerHTML=B_FIELDS.map(f=>`<div class="form-row${f.k==='note'?' full':''}"><label>${f.label}</label>${f.k==='note'?'<textarea id="abf_'+f.k+'" rows="3"></textarea>':'<input type="text" id="abf_'+f.k+'" />'}</div>`).join("");
+  document.getElementById("maskAddBuilding").classList.add("show");
+  setTimeout(()=>document.getElementById("ab_name").focus(),0);
+}
+function saveAddBuilding(){
+  const d=document.getElementById("ab_district").value;
+  const n=document.getElementById("ab_name").value.trim();
+  const sub=document.getElementById("ab_sub").value;
+  if(!n){ alert("楼盘名称不能为空"); return; }
+  const rec={};
+  B_FIELDS.forEach(f=>{ const el=document.getElementById("abf_"+f.k); const v=el?el.value.trim():""; if(v) rec[f.k]=v; });
+  if(!addBuilding(d,n,sub,rec)){ alert("该片区已存在同名楼盘，无法重复添加"); return; }
+  document.getElementById("maskAddBuilding").classList.remove("show"); renderBuildings();
+}
+function closeAddBuilding(){ document.getElementById("maskAddBuilding").classList.remove("show"); }
+
+/* ---------- 新增片区 ---------- */
+function openAddDistrict(){
+  document.getElementById("ad_name").value="";
+  document.getElementById("maskAddDistrict").classList.add("show");
+  setTimeout(()=>document.getElementById("ad_name").focus(),0);
+}
+function saveAddDistrict(){
+  const n=document.getElementById("ad_name").value.trim();
+  if(!n){ alert("片区名称不能为空"); return; }
+  if(!addDistrict(n)) return;
+  document.getElementById("maskAddDistrict").classList.remove("show");
+  renderRegionOptions(true);   // 刷新客户片区偏好多选框
+  fillDistrictFilters();       // 刷新片区筛选下拉
+  renderBuildings();           // 楼盘库显示新片区（0 个）
+}
+function closeAddDistrict(){ document.getElementById("maskAddDistrict").classList.remove("show"); }
+
+/* 片区下拉 / 多选框动态渲染（含自定义片区） */
+function renderRegionOptions(preserve){
+  const box=document.getElementById("f_regions");
+  const cur=preserve?[...box.querySelectorAll("input:checked")].map(c=>c.value):[];
+  box.innerHTML=DISTRICTS.map(d=>`<label><input type="checkbox" value="${esc(d)}"/>${esc(d)}</label>`).join("")+`<label><input type="checkbox" value="其他"/>其他</label>`;
+  box.querySelectorAll("input").forEach(c=>{ c.checked=cur.includes(c.value); c.onchange=syncRegionLabels; });
+  syncRegionLabels();
+}
+function fillDistrictFilters(){
+  fillSelect(document.getElementById("fRegion"), DISTRICTS, true);
+  fillSelect(document.getElementById("bRegion"), DISTRICTS, false);
+}
+function fillSelect(sel, list, withOther){
+  const cur=sel.value;
+  sel.innerHTML=`<option value="">全部片区</option>`+list.map(d=>`<option ${d===cur?'selected':''}>${esc(d)}</option>`).join("")+(withOther?`<option ${"其他"===cur?'selected':''}>其他</option>`:"");
+}
+function renderMaps(){
+  const c=document.getElementById("maps");
+  c.innerHTML="";
+  for(const [district,imgs] of Object.entries(MAPS)){
+    const caps = district==="金融城"?"起步区 + 东区":district==="琶洲"?"互联网集聚区 + 琶洲会展":district==="创意园"?"棠下/科韵路 + 东圃 + 琶洲会展":district==="越秀"?"环市东/东风东 + 北京路/东风中":"";
+    const imgsHtml=imgs.map(f=>`<img src="${f}" alt="${esc(district)}分布图" loading="lazy"/>`).join("");
+    c.insertAdjacentHTML("beforeend",`<div class="map-card"><h3>${esc(district)}</h3>${caps?`<div class="map-sub">${esc(caps)}</div>`:""}${imgsHtml}</div>`);
+  }
+}
+function matchingBuildings(regions){
+  if(!regions||!regions.length) return "";
+  let html=`<div class="suggest"><h4>可选楼盘（按片区匹配 · 点击楼盘可补充字段）</h4>`;
+  let has=false;
+  regions.forEach(r=>{
+    const list=mergedBuildings(r);
+    if(!list.length) return;
+    has=true;
+    html+=`<div class="suggest-group"><h5>${esc(r)} · ${list.length} 个可选</h5><div class="b-list">${list.map(b=>`<span class="b-edit" data-d="${esc(r)}" data-n="${esc(b.name)}">${esc(b.name)}${b.sub?` <span class="sub">(${esc(b.sub)})</span>`:""}${fieldTags(b)}</span>`).join("")}</div></div>`;
+  });
+  html+=`</div>`;
+  return has?html:"";
+}
+
+/* ---------- filters UI ---------- */
+function fillSelectors(){
+  const fs=document.getElementById("fStage");
+  STAGES.forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s;fs.appendChild(o);});
+  const fi=document.getElementById("fIndustry");
+  [...new Set(data.map(x=>x.industry).filter(Boolean))].sort().forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s;fi.appendChild(o);});
+}
+
+/* ---------- inquiry building tracker ---------- */
+let trackFilter="all";
+function cnt(o){ return o?Object.values(o).filter(Boolean).length:0; }
+function renderInquiryBuildings(x){
+  if(!x.regions||!x.regions.length) return "";
+  // 兼容旧数据：把单选 picked 迁移为 suitable
+  if(x.picked!==undefined){ x.suitable=x.suitable||{}; if(x.picked) x.suitable[x.picked]=true; delete x.picked; save(); }
+  const suitN=cnt(x.suitable), unsuitN=cnt(x.unsuitable);
+  let allTotal=0;
+  let html=`<div class="suggest"><h4>楼盘询盘进度</h4>`;
+  html+=`<div class="track-filter">
+    <button data-act="filter" data-f="all" class="${trackFilter==='all'?'active':''}">全部</button>
+    <button data-act="filter" data-f="suitable" class="${trackFilter==='suitable'?'active':''}">合适 ${suitN}</button>
+    <button data-act="filter" data-f="unsuitable" class="${trackFilter==='unsuitable'?'active':''}">不合适 ${unsuitN}</button>
+    <button data-act="filter" data-f="none" class="${trackFilter==='none'?'active':''}">待定</button>
+  </div>`;
+  x.regions.forEach(r=>{
+    const list=mergedBuildings(r);
+    if(!list.length) return;
+    let groupHtml=""; let regionShown=0;
+    list.forEach(b=>{
+      const key=r+"|"+b.name;
+      const isSuit=x.suitable&&x.suitable[key];
+      const isUnsuit=x.unsuitable&&x.unsuitable[key];
+      allTotal++;
+      let show=true;
+      if(trackFilter==="suitable") show=!!isSuit;
+      else if(trackFilter==="unsuitable") show=!!isUnsuit;
+      else if(trackFilter==="none") show=!(isSuit||isUnsuit);
+      if(!show) return;
+      groupHtml+=`<span class="b-track ${isSuit?'suitable':''} ${isUnsuit?'unsuitable':''}">
+        <span class="b-name">${esc(b.name)}</span>
+        <button class="blink ${isSuit?'s-on':''}" data-act="suit" data-k="${esc(key)}">${isSuit?'合适✓':'合适'}</button>
+        <button class="blink ${isUnsuit?'u-on':''}" data-act="unsuit" data-k="${esc(key)}">${isUnsuit?'不合适✓':'不合适'}</button>
+        <button class="blink" data-act="note" data-k="${esc(key)}">${(x.bnotes&&x.bnotes[key])?'笔记✓':'笔记'}</button>
+      </span>`;
+      regionShown++;
+    });
+    if(regionShown>0) html+=`<div class="suggest-group"><h5>${esc(r)} · ${regionShown} 个</h5><div class="b-list">${groupHtml}</div></div>`;
+  });
+  const pendN=Math.max(0, allTotal-suitN-unsuitN);
+  html+=`<div class="track-count">合适 ${suitN} · 不合适 ${unsuitN} · 待定 ${pendN} · 共 ${allTotal} 个楼盘</div></div>`;
+  return html;
+}
+function rerenderTrack(){
+  const x=data.find(d=>d.id===detailId); if(!x) return;
+  const wrap=document.getElementById("trackWrap"); if(!wrap) return;
+  wrap.innerHTML=renderInquiryBuildings(x);
+  attachTrackHandlers();
+}
+function attachTrackHandlers(){
+  document.querySelectorAll('#d_body button[data-act="note"]').forEach(btn=>btn.onclick=()=>openNote(btn.dataset.k));
+  document.querySelectorAll('#d_body button[data-act="suit"]').forEach(btn=>btn.onclick=()=>{
+    const x=data.find(d=>d.id===detailId); if(!x) return;
+    x.suitable=x.suitable||{}; x.unsuitable=x.unsuitable||{};
+    const k=btn.dataset.k;
+    if(x.suitable[k]) delete x.suitable[k]; else { x.suitable[k]=true; delete x.unsuitable[k]; }
+    save(); rerenderTrack();
+  });
+  document.querySelectorAll('#d_body button[data-act="unsuit"]').forEach(btn=>btn.onclick=()=>{
+    const x=data.find(d=>d.id===detailId); if(!x) return;
+    x.suitable=x.suitable||{}; x.unsuitable=x.unsuitable||{};
+    const k=btn.dataset.k;
+    if(x.unsuitable[k]) delete x.unsuitable[k]; else { x.unsuitable[k]=true; delete x.suitable[k]; }
+    save(); rerenderTrack();
+  });
+  document.querySelectorAll('#d_body button[data-act="filter"]').forEach(btn=>btn.onclick=()=>{
+    trackFilter=btn.dataset.f; rerenderTrack();
+  });
+}
+let noteKey=null;
+function openNote(key){
+  noteKey=key;
+  const x=data.find(d=>d.id===detailId);
+  const [d,n]=key.split("|");
+  document.getElementById("note_title").textContent=n+"（"+d+"）";
+  document.getElementById("note_text").value=(x.bnotes&&x.bnotes[key])||"";
+  document.getElementById("maskNote").classList.add("show");
+  setTimeout(()=>document.getElementById("note_text").focus(),50);
+}
+function saveNote(){
+  if(!noteKey) return;
+  const x=data.find(d=>d.id===detailId); if(!x) return;
+  x.bnotes=x.bnotes||{}; x.bnotes[noteKey]=document.getElementById("note_text").value.trim();
+  save(); openDetail(detailId);
+  document.getElementById("maskNote").classList.remove("show"); noteKey=null;
+}
+function closeNote(){ document.getElementById("maskNote").classList.remove("show"); noteKey=null; }
+
+/* ---------- form modal ---------- */
+function openForm(id){
+  editingId=id||null;
+  document.getElementById("formErr").textContent="";
+  renderRegionOptions();
+  document.getElementById("btnDelete").style.display = id?"inline-block":"none";
+  document.getElementById("formTitle").textContent = id?"编辑询盘":"新增询盘";
+  const x = id?data.find(d=>d.id===id):null;
+  const set=(idv,val)=>document.getElementById(idv).value = val||"";
+  set("f_company",x?.company); set("f_contact",x?.contact); set("f_industry",x?.industry);
+  set("f_area",x?.area); set("f_budget",x?.budget); set("f_source",x?.source||"微信");
+  set("f_expect",x?.expect); set("f_next",x?.next); set("f_remark",x?.remark);
+  const st=document.getElementById("f_stage"); st.innerHTML=""; STAGES.forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s;st.appendChild(o);}); st.value=x?.stage||"新询盘";
+  document.querySelectorAll("#f_regions input").forEach(c=>c.checked=!!(x&&(x.regions||[]).includes(c.value)));
+  syncRegionLabels();
+  document.getElementById("maskForm").classList.add("show");
+}
+function syncRegionLabels(){
+  document.querySelectorAll("#f_regions label").forEach(l=>{
+    const c=l.querySelector("input"); l.classList.toggle("on",c.checked);
+  });
+}
+function saveForm(){
+  const company=document.getElementById("f_company").value.trim();
+  if(!company){ document.getElementById("formErr").textContent="请填写客户 / 公司名称"; return; }
+  const regions=[...document.querySelectorAll("#f_regions input:checked")].map(c=>c.value);
+  const obj={
+    company, contact:document.getElementById("f_contact").value.trim(),
+    industry:document.getElementById("f_industry").value.trim(),
+    area:document.getElementById("f_area").value?Number(document.getElementById("f_area").value):null,
+    budget:document.getElementById("f_budget").value?Number(document.getElementById("f_budget").value):null,
+    source:document.getElementById("f_source").value,
+    stage:document.getElementById("f_stage").value,
+    expect:document.getElementById("f_expect").value||"",
+    next:document.getElementById("f_next").value||"",
+    regions, remark:document.getElementById("f_remark").value.trim()
+  };
+  if(editingId){ const x=data.find(d=>d.id===editingId); Object.assign(x,obj); x.updatedAt=Date.now(); }
+  else { obj.id=uid(); obj.followups=[]; obj.createdAt=Date.now(); obj.updatedAt=Date.now(); data.push(obj); }
+  save(); fillSelectors(); renderAll(); closeForm();
+}
+function closeForm(){ document.getElementById("maskForm").classList.remove("show"); editingId=null; }
+function deleteCurrent(){
+  if(editingId && confirm("确定删除该询盘？此操作不可撤销。")){
+    data=data.filter(d=>d.id!==editingId); save(); fillSelectors(); renderAll(); closeForm();
+  }
+}
+
+/* ---------- detail modal ---------- */
+function openDetail(id){
+  detailId=id; const x=data.find(d=>d.id===id); if(!x) return;
+  document.getElementById("d_company").textContent=x.company;
+  document.getElementById("d_tagline").textContent=
+    `${x.industry||"—"} · ${x.area?x.area+"㎡":""} · 预算 ${x.budget?x.budget+"元/㎡/月":"待定"} · 来源 ${x.source||"—"} · 阶段 ${x.stage}`;
+  const di=dueInfo(x.next);
+  document.getElementById("d_body").innerHTML=`
+    <div class="grid2" style="font-size:13px;gap:10px;">
+      <div><b>联系人</b><br>${esc(x.contact||"—")}</div>
+      <div><b>片区偏好</b><br>${(x.regions||[]).join("、")||"—"}</div>
+      <div><b>期望时间</b><br>${x.expect||"—"}</div>
+      <div><b>下次跟进</b><br>${x.next?x.next+(di?` (${di.text})`:""):"—"}</div>
+      <div style="grid-column:1/-1"><b>备注</b><br>${esc(x.remark||"—")}</div>
+    </div><div id="trackWrap">${renderInquiryBuildings(x)}</div>`;
+  renderFollowups();
+  attachTrackHandlers();
+  document.getElementById("maskDetail").classList.add("show");
+}
+function renderFollowups(){
+  const x=data.find(d=>d.id===detailId); if(!x) return;
+  const fs=(x.followups||[]).slice().sort((a,b)=>(a.date<b.date?1:-1));
+  document.getElementById("d_followups").innerHTML = fs.length? fs.map(f=>
+    `<div class="fu"><div class="fut">${esc(f.date||"")}</div>
+     <div class="fuc">${esc(f.content||"")}</div>
+     ${f.next?`<div class="fun">下一步：${esc(f.next)}</div>`:""}</div>`).join("")
+   : '<div style="color:var(--gray-500);font-size:12px;">暂无跟进记录</div>';
+}
+function addFollowup(){
+  const x=data.find(d=>d.id===detailId); if(!x) return;
+  const date=document.getElementById("fu_date").value||iso(Date.now());
+  const content=document.getElementById("fu_content").value.trim();
+  const next=document.getElementById("fu_next").value.trim();
+  if(!content && !next){ alert("请填写跟进内容或下一步动作"); return; }
+  x.followups=x.followups||[]; x.followups.push({date,content,next}); x.updatedAt=Date.now();
+  save(); renderFollowups(); renderStats();
+  document.getElementById("fu_content").value=""; document.getElementById("fu_next").value="";
+}
+function closeDetail(){ document.getElementById("maskDetail").classList.remove("show"); detailId=null; }
+
+/* ---------- import / export ---------- */
+function exportJSON(){
+  const snap=aggregate();
+  const blob=new Blob([JSON.stringify(snap,null,2)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download="工作台备份_"+iso(Date.now())+".json"; a.click();
+}
+function importJSON(file){
+  const r=new FileReader();
+  r.onload=()=>{ try{
+    const s=JSON.parse(r.result);
+    if(!s||typeof s!=="object") throw 0;
+    if(confirm("导入将覆盖当前数据（含楼盘库 / 片区 / 编辑），确定继续？建议先导出备份。")){
+      applySnapshot(s);
+      fillSelectors(); renderRegionOptions(); fillDistrictFilters(); renderAll(); renderBuildings();
+      if(syncCfg.mode==="cloud"&&sbClient()) pushSnapshot(true);
+      alert("导入成功");
+    }
+  }catch(e){ alert("文件格式不正确，导入失败"); } };
+  r.readAsText(file);
+}
+
+
+/* ---------- events ---------- */
+document.getElementById("btnAdd").onclick=()=>openForm();
+document.getElementById("btnCancel").onclick=closeForm;
+document.getElementById("btnSave").onclick=saveForm;
+document.getElementById("btnDelete").onclick=deleteCurrent;
+document.getElementById("btnEdit").onclick=()=>{ const id=detailId; closeDetail(); openForm(id); };
+document.getElementById("btnCloseDetail").onclick=closeDetail;
+document.getElementById("btnAddFu").onclick=addFollowup;
+document.getElementById("btnExport").onclick=exportJSON;
+document.getElementById("btnImport").onclick=()=>document.getElementById("fileInput").click();
+document.getElementById("fileInput").onchange=e=>{ if(e.target.files[0]) importJSON(e.target.files[0]); e.target.value=""; };
+document.querySelectorAll("#f_regions input").forEach(c=>c.onchange=syncRegionLabels);
+document.getElementById("viewSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+  view=b.dataset.view;
+  document.querySelectorAll("#viewSeg button").forEach(x=>x.classList.toggle("active",x===b));
+  document.getElementById("board").classList.toggle("hidden",view!=="board");
+  document.getElementById("list").classList.toggle("hidden",view!=="list");
+  renderAll();
+});
+["fStage","fRegion","fIndustry","fSearch"].forEach(id=>document.getElementById(id).addEventListener("input",renderAll));
+document.getElementById("mainNav").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+  section=b.dataset.section;
+  document.querySelectorAll("#mainNav button").forEach(x=>x.classList.toggle("active",x===b));
+  document.getElementById("inquirySection").classList.toggle("hidden",section!=="inquiries");
+  document.getElementById("dealsSection").classList.toggle("hidden",section!=="deals");
+  document.getElementById("buildingSection").classList.toggle("hidden",section!=="buildings");
+  document.getElementById("mapSection").classList.toggle("hidden",section!=="maps");
+  document.getElementById("btnAdd").style.display = section==="inquiries"?"inline-block":"none";
+  if(section==="deals") renderDeals();
+  else if(section==="buildings") renderBuildings();
+  else if(section==="maps") renderMaps();
+  else renderAll();
+});
+["bSearch","bRegion"].forEach(id=>document.getElementById(id).addEventListener("input",renderBuildings));
+document.getElementById("b_save").onclick=saveBuilding;
+document.getElementById("b_close").onclick=closeBuilding;
+document.getElementById("maskBuilding").onclick=e=>{ if(e.target.id==="maskBuilding") closeBuilding(); };
+document.getElementById("btnAddBuilding").onclick=openAddBuilding;
+document.getElementById("btnAddDistrict").onclick=openAddDistrict;
+document.getElementById("ad_save").onclick=saveAddDistrict;
+document.getElementById("ad_close").onclick=closeAddDistrict;
+document.getElementById("maskAddDistrict").onclick=e=>{ if(e.target.id==="maskAddDistrict") closeAddDistrict(); };
+document.getElementById("ab_save").onclick=saveAddBuilding;
+document.getElementById("ab_close").onclick=closeAddBuilding;
+document.getElementById("maskAddBuilding").onclick=e=>{ if(e.target.id==="maskAddBuilding") closeAddBuilding(); };
+document.getElementById("note_save").onclick=saveNote;
+document.getElementById("note_close").onclick=closeNote;
+document.getElementById("maskNote").onclick=e=>{ if(e.target.id==="maskNote") closeNote(); };
+document.getElementById("maskForm").onclick=e=>{ if(e.target.id==="maskForm") closeForm(); };
+document.getElementById("maskDetail").onclick=e=>{ if(e.target.id==="maskDetail") closeDetail(); };
+
+/* ---------- 成交台账渲染与 CRUD ---------- */
+function renderDeals(){
+  const fd=document.getElementById("dfDistrict").value;
+  const ft=document.getElementById("dfType").value;
+  const fi=document.getElementById("dfIndustry").value;
+  const fs=(document.getElementById("dfSearch").value||"").trim().toLowerCase();
+  let list=deals.filter(d=>{
+    if(fd&&d.district!==fd) return false;
+    if(ft&&d.type!==ft) return false;
+    if(fi&&d.industry!==fi) return false;
+    if(fs&&(d.company||"").toLowerCase().indexOf(fs)<0&&(d.project||"").toLowerCase().indexOf(fs)<0) return false;
+    return true;
+  });
+  // stats
+  const totalArea=list.reduce((s,d)=>s+(d.area||0),0);
+  const byDist={}; list.forEach(d=>{ byDist[d.district]=(byDist[d.district]||0)+1; });
+  const byType={}; list.forEach(d=>{ byType[d.type]=(byType[d.type]||0)+1; });
+  let statHtml=`<div class="stat-card"><div class="stat-num">${list.length}</div><div class="stat-label">成交笔数</div></div>`;
+  statHtml+=`<div class="stat-card"><div class="stat-num">${totalArea.toLocaleString()}</div><div class="stat-label">总面积(㎡)</div></div>`;
+  let avgRent=0;
+  if(totalArea>0){
+    const totalRent=list.reduce((s,d)=>{const r=parseFloat(String(d.rent).split("-")[0])||0;return s+(d.area||0)*r;},0);
+    avgRent=Math.round(totalRent/totalArea);
+  }
+  statHtml+=`<div class="stat-card"><div class="stat-num">${avgRent}</div><div class="stat-label">均价(元/㎡)</div></div>`;
+  document.getElementById("dealStats").innerHTML=statHtml;
+  // table
+  const tb=document.getElementById("dealsBody");
+  if(!list.length){ tb.innerHTML='<tr><td colspan="10" style="text-align:center;color:#888;padding:30px 0">暂无成交数据</td></tr>'; return; }
+  tb.innerHTML=list.map(d=>`<tr>
+    <td>${esc(d.company)}</td>
+    <td>${esc(d.project)}</td>
+    <td><span class="chip">${esc(d.district)}</span></td>
+    <td>${(d.area||0).toLocaleString()}</td>
+    <td><span class="chip ${d.type==="新设"?"ok":d.type==="续租"?"warn":""}">${esc(d.type)}</span></td>
+    <td>${esc(d.rent)}</td>
+    <td>${esc(d.industry)}</td>
+    <td>${esc(d.floor)||"-"}</td>
+    <td>${esc(d.note)||"-"}</td>
+    <td><button class="btn-ghost sm" onclick='openDeal("${d.id}")'>编辑</button></td>
+  </tr>`).join("");
+}
+function openDeal(id){
+  editingDealId=id||null;
+  const d=id?deals.find(x=>x.id===id):null;
+  document.getElementById("dealTitle").textContent=d?"编辑成交":"新增成交";
+  document.getElementById("d_company").value=d?d.company:"";
+  document.getElementById("d_project").value=d?d.project:"";
+  document.getElementById("d_district").value=d?d.district:"";
+  document.getElementById("d_type").value=d?d.type:"";
+  document.getElementById("d_area").value=d?d.area:"";
+  document.getElementById("d_rent").value=d?d.rent:"";
+  document.getElementById("d_industry").value=d?d.industry:"";
+  document.getElementById("d_floor").value=d?d.floor:"";
+  document.getElementById("d_note").value=d?d.note:"";
+  document.getElementById("deal_delete").style.display=d?"inline-block":"none";
+  document.getElementById("maskDeal").classList.add("show");
+}
+function closeDeal(){ document.getElementById("maskDeal").classList.remove("show"); editingDealId=null; }
+function saveDeal(){
+  const rec={
+    company:document.getElementById("d_company").value.trim(),
+    project:document.getElementById("d_project").value.trim(),
+    district:document.getElementById("d_district").value,
+    type:document.getElementById("d_type").value,
+    area:parseInt(document.getElementById("d_area").value)||0,
+    rent:document.getElementById("d_rent").value.trim(),
+    industry:document.getElementById("d_industry").value.trim(),
+    floor:document.getElementById("d_floor").value.trim(),
+    note:document.getElementById("d_note").value.trim()
+  };
+  if(!rec.company){alert("请填写企业名称");return;}
+  if(!rec.project){alert("请填写项目名称");return;}
+  if(editingDealId){
+    const idx=deals.findIndex(x=>x.id===editingDealId);
+    if(idx>=0){ deals[idx]={...deals[idx],...rec}; }
+  } else { rec.id=uid(); deals.unshift(rec); }
+  saveDeals(); renderDeals(); fillDealIndustry(); closeDeal();
+}
+function deleteDeal(){
+  if(!editingDealId) return;
+  if(!confirm("确定删除这条成交记录？")) return;
+  deals=deals.filter(d=>d.id!==editingDealId);
+  saveDeals(); renderDeals(); fillDealIndustry(); closeDeal();
+}
+function fillDealIndustry(){
+  const sel=document.getElementById("dfIndustry");
+  const cur=sel.value;
+  const inds=[...new Set(deals.map(d=>d.industry).filter(Boolean))].sort();
+  sel.innerHTML=`<option value="">全部行业</option>`+inds.map(i=>`<option${i===cur?" selected":""}>${esc(i)}</option>`).join("");
+}
+
+/* ---------- init ---------- */
+async function boot(){
+  _booting=true; loadSyncCfg();
+  load(); loadBEdits(); loadDistricts(); loadDeals();
+  if(syncCfg.mode==="cloud" && sbClient()){
+    setSyncStatus("syncing"); await maybePull();
+  } else { setSyncStatus(syncCfg.mode==="cloud"?"needcfg":"local"); }
+  initAllBuildings();
+  fillSelectors(); renderRegionOptions(); fillDistrictFilters();
+  renderAll(); renderBuildings(); renderMaps();
+  fillDealIndustry();
+  const fd=document.getElementById("fu_date"); if(fd) fd.value=iso(Date.now());
+  _booting=false;
+  if(syncCfg.mode==="cloud" && sbClient()) subscribeRemote();
+}
+document.getElementById("btnSync").onclick=openSync;
+document.getElementById("sync_close").onclick=closeSync;
+document.getElementById("maskSync").onclick=e=>{ if(e.target.id==="maskSync") closeSync(); };
+document.getElementById("sync_save").onclick=saveSyncSettings;
+document.getElementById("btnTest").onclick=testSync;
+document.getElementById("btnPush").onclick=doPush;
+document.getElementById("btnPull").onclick=doPull;
+document.getElementById("sync_mode").onchange=e=>{ document.getElementById("syncCloudFields").style.display=e.target.value==="cloud"?"block":"none"; };
+// 成交台账事件
+document.getElementById("btnAddDeal").onclick=()=>openDeal();
+document.getElementById("deal_close").onclick=closeDeal;
+document.getElementById("maskDeal").onclick=e=>{ if(e.target.id==="maskDeal") closeDeal(); };
+document.getElementById("deal_save").onclick=saveDeal;
+document.getElementById("deal_delete").onclick=deleteDeal;
+["dfDistrict","dfType","dfIndustry","dfSearch"].forEach(id=>document.getElementById(id).addEventListener("input",renderDeals));
+boot();
+document.getElementById("fu_date").value=iso(Date.now());
+
+/* ---------- PWA：注册 Service Worker（离线可用 / 可安装到主屏幕） ---------- */
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
+</script>
+</body>
+</html>

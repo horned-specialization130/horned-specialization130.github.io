@@ -1,0 +1,20 @@
+{
+  "name": "选址顾问工作台 · 询盘管理",
+  "short_name": "选址工作台",
+  "description": "广州商业地产企业选址顾问的工作台：询盘跟进、楼盘库、团队共享",
+  "lang": "zh-CN",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFFFFF",
+  "theme_color": "#E8541D",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
