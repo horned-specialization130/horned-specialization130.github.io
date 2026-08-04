@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>选址顾问工作台 · 团队上手说明</title>
+<meta name="theme-color" content="#E8541D" />
+<style>
+:root{
+  --orange:#E8541D; --orange-d:#C43F0E; --orange-soft:#FFF1EA;
+  --ink:#1C1917; --ink-2:#57534E; --ink-3:#8A8580;
+  --bg:#FAF8F6; --card:#FFFFFF; --line:#EDE8E3;
+  --ok:#127C4A; --ok-soft:#E7F5EE;
+  --shadow:0 1px 2px rgba(28,25,23,.05),0 8px 24px rgba(28,25,23,.06);
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.7;
+  -webkit-font-smoothing:antialiased; padding-bottom:60px;
+}
+.wrap{max-width:760px;margin:0 auto;padding:0 18px}
+
+/* ---- hero ---- */
+.hero{
+  background:linear-gradient(135deg,#E8541D 0%,#C43F0E 100%);
+  color:#fff; padding:38px 0 34px; margin-bottom:26px;
+}
+.hero .tag{
+  display:inline-block; font-size:12px; letter-spacing:.08em;
+  background:rgba(255,255,255,.18); padding:4px 10px; border-radius:999px; margin-bottom:12px;
+}
+.hero h1{font-size:26px;line-height:1.35;font-weight:700;margin-bottom:8px}
+.hero p{font-size:14px;opacity:.92}
+
+/* ---- url card ---- */
+.urlcard{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:18px; margin:-56px auto 28px; position:relative;
+}
+.urlcard .lbl{font-size:12px;color:var(--ink-3);margin-bottom:6px}
+.urlcard .url{
+  font-size:17px; font-weight:600; color:var(--orange-d); word-break:break-all;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace; margin-bottom:14px;
+}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap}
+.btn{
+  display:inline-block; padding:10px 18px; border-radius:10px; font-size:14px;
+  font-weight:600; text-decoration:none; cursor:pointer; border:1px solid transparent;
+  transition:.15s;
+}
+.btn-primary{background:var(--orange);color:#fff}
+.btn-primary:hover{background:var(--orange-d)}
+.btn-ghost{background:#fff;color:var(--ink-2);border-color:var(--line)}
+.btn-ghost:hover{border-color:var(--orange);color:var(--orange)}
+
+/* ---- section ---- */
+section{margin-bottom:30px}
+h2{
+  font-size:18px;font-weight:700;margin-bottom:14px;
+  display:flex;align-items:center;gap:9px;
+}
+h2 .num{
+  width:26px;height:26px;flex:none;border-radius:8px;background:var(--orange-soft);
+  color:var(--orange-d);font-size:13px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:18px;
+}
+.card + .card{margin-top:12px}
+.card h3{font-size:14px;font-weight:700;margin-bottom:10px;color:var(--ink)}
+
+ol,ul{padding-left:20px}
+ol li,ul li{margin-bottom:7px;font-size:14.5px;color:var(--ink-2)}
+ol li strong,ul li strong{color:var(--ink)}
+kbd{
+  background:var(--orange-soft);color:var(--orange-d);border-radius:6px;
+  padding:2px 7px;font-size:13px;font-weight:600;
+  font-family:inherit;white-space:nowrap;
+}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:#FBF9F7;font-weight:600;color:var(--ink-2);font-size:12.5px}
+td:first-child{white-space:nowrap;font-weight:600;color:var(--ink)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:#fff;box-shadow:var(--shadow)}
+.tablewrap table th:first-child,.tablewrap table td:first-child{padding-left:14px}
+
+.note{
+  background:var(--orange-soft);border-left:3px solid var(--orange);
+  padding:12px 14px;border-radius:0 10px 10px 0;font-size:13.5px;color:var(--ink-2);
+  margin-top:12px;
+}
+.note strong{color:var(--orange-d)}
+.ok{
+  background:var(--ok-soft);border-left:3px solid var(--ok);
+  padding:12px 14px;border-radius:0 10px 10px 0;font-size:13.5px;color:var(--ink-2);
+  margin-top:12px;
+}
+.ok strong{color:var(--ok)}
+
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps li{
+  position:relative;padding-left:34px;margin-bottom:12px;font-size:14.5px;color:var(--ink-2);
+}
+.steps li::before{
+  counter-increment:s;content:counter(s);
+  position:absolute;left:0;top:1px;width:23px;height:23px;border-radius:50%;
+  background:var(--orange);color:#fff;font-size:12px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+.steps li strong{color:var(--ink)}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){
+  .two{grid-template-columns:1fr}
+  .hero h1{font-size:22px}
+  .urlcard .url{font-size:15px}
+}
+
+footer{
+  text-align:center;color:var(--ink-3);font-size:12.5px;
+  padding:26px 0 10px;border-top:1px solid var(--line);margin-top:34px;
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap">
+    <span class="tag">松果运营 · 内部工具</span>
+    <h1>选址顾问工作台<br/>团队上手说明</h1>
+    <p>询盘管理 · 成交台账 · 楼盘库 · 分布图 —— 打开网页即用，无需安装、无需注册</p>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="urlcard">
+    <div class="lbl">工作台网址（永久有效，电脑手机都能打开）</div>
+    <div class="url">https://leona0830zzz-alt.github.io/</div>
+    <div class="btnrow">
+      <a class="btn btn-primary" href="https://leona0830zzz-alt.github.io/" target="_blank" rel="noopener">立即打开工作台</a>
+      <button class="btn btn-ghost" id="copyBtn">复制网址</button>
+    </div>
+  </div>
+
+  <!-- 1 -->
+  <section>
+    <h2><span class="num">1</span>工作台里有什么</h2>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>板块</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td>询盘管理</td><td>记录每一条客户询盘：需求面积、预算、行业、跟进阶段、下次跟进时间；可为每个客户勾选「合适 / 不合适」的楼盘并写跟进笔记</td></tr>
+          <tr><td>成交台账</td><td>已成交案例库：企业、项目、商务区、面积、租金、行业、楼层，可随时新增和编辑，用来做租金参考</td></tr>
+          <tr><td>楼盘库</td><td>各片区盘源明细：租金参考/底价、免租期、管理费、楼宇等级、装修状况、在租面积段、空调、停车、地铁等；支持新增楼盘、调整所属片区、自定义新片区</td></tr>
+          <tr><td>地图</td><td>写字楼分布图，按片区查看楼宇位置</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section>
+    <h2><span class="num">2</span>把它装成手机 App</h2>
+    <div class="card">
+      <p style="font-size:14.5px;color:var(--ink-2);margin-bottom:14px">
+        添加到手机主屏幕后，图标和使用体验跟普通 App 一样，全屏打开、没有浏览器地址栏。
+      </p>
+      <div class="two">
+        <div>
+          <h3>iPhone（Safari）</h3>
+          <ol class="steps">
+            <li>用 <strong>Safari</strong> 打开上面的网址（微信里点开的话，先点右上角「…」→「在 Safari 中打开」）</li>
+            <li>点底部中间的 <strong>分享按钮</strong> ⬆️</li>
+            <li>下滑选择 <strong>「添加到主屏幕」</strong> → 右上角「添加」</li>
+          </ol>
+        </div>
+        <div>
+          <h3>安卓（Chrome / 浏览器）</h3>
+          <ol class="steps">
+            <li>用系统浏览器打开网址</li>
+            <li>点右上角 <strong>「⋮」菜单</strong></li>
+            <li>选择 <strong>「添加到主屏幕」</strong> 或「安装应用」</li>
+          </ol>
+        </div>
+      </div>
+      <div class="ok"><strong>装完后</strong>：桌面会出现橙色图标，点开直接进工作台，弱网/没网也能查看已缓存的数据。</div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section>
+    <h2><span class="num">3</span>导出 Excel（重点）</h2>
+
+    <div class="card">
+      <h3>两种导出方式</h3>
+      <ul>
+        <li><strong>导出全部</strong>：页面右上角点 <kbd>导出Excel</kbd> → 生成一个表格文件，里面含「询盘管理 / 成交台账 / 楼盘库」<strong>三个工作表（sheet）</strong></li>
+        <li><strong>单独导出某个板块</strong>：切到对应板块，在它自己的工具栏点：
+          <br/><kbd>导出询盘Excel</kbd>　<kbd>导出台账Excel</kbd>　<kbd>导出楼盘Excel</kbd>
+        </li>
+      </ul>
+      <div class="note">
+        导出的是<strong>当前全部数据</strong>（不受页面上的筛选条件影响），文件会自动下载到手机/电脑的「下载」目录。
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>各板块导出的字段</h3>
+      <div class="tablewrap" style="box-shadow:none;border:none">
+        <table>
+          <thead><tr><th>板块</th><th>导出列</th></tr></thead>
+          <tbody>
+            <tr><td>询盘管理<br/><span style="font-weight:400;color:var(--ink-3);font-size:12px">14 列</span></td>
+                <td>客户/公司、联系人、行业、面积需求、预算、来源、阶段、片区偏好、期望进场时间、下次跟进、备注、跟进次数、创建日期、更新日期</td></tr>
+            <tr><td>成交台账<br/><span style="font-weight:400;color:var(--ink-3);font-size:12px">9 列</span></td>
+                <td>企业名称、项目、商务区、成交面积、成交类型、成交租金、所属行业、楼层、备注</td></tr>
+            <tr><td>楼盘库<br/><span style="font-weight:400;color:var(--ink-3);font-size:12px">16 列</span></td>
+                <td>片区、楼盘名称、子区域、租金参考、租金底价、免租期、管理费、楼宇等级、装修状况、在租状态、在租面积段、空调、停车、地铁、押金、备注</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>打开导出文件时的小提示</h3>
+      <ul>
+        <li>用 <strong>WPS</strong> 打开：直接双击即可，无任何提示</li>
+        <li>用 <strong>Microsoft Excel</strong> 打开：会弹一次「文件格式与扩展名不匹配」的提醒，点 <strong>「是」</strong> 就能正常打开，内容完全正常</li>
+        <li>手机上导出后，在「文件 / 下载」里找到，用 WPS 打开即可</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section>
+    <h2><span class="num">4</span>团队数据共享（需配置一次）</h2>
+    <div class="card">
+      <p style="font-size:14.5px;color:var(--ink-2);margin-bottom:12px">
+        <strong>默认情况下，每个人的数据只存在自己的设备上，互相看不到。</strong>
+        如果要让团队看到同一份询盘和台账，需要每个人做一次同步配置——填完之后，任何人的改动都会在几秒内同步到所有人。
+      </p>
+      <ol class="steps">
+        <li>打开工作台，点右上角的 <kbd>本地模式</kbd> 按钮（带小圆点那个）</li>
+        <li>模式切换为 <strong>「云端（Supabase 共享）」</strong></li>
+        <li>把管理员发给你的三项内容填进去：<strong>Supabase URL</strong>、<strong>匿名 Key</strong>、<strong>团队空间 Key</strong></li>
+        <li>点 <strong>「测试连接」</strong> → 显示成功后点 <strong>「保存」</strong></li>
+        <li>按钮变成绿色「已同步」即配置完成</li>
+      </ol>
+      <div class="note">
+        <strong>三项配置由管理员统一发放</strong>，团队里所有人必须填<u>完全相同</u>的三项，才会进同一个数据空间。<br/>
+        首次配置后，如果本机已有数据，系统会询问是「用云端覆盖本机」还是「用本机推到云端」，按实际情况选择。
+      </div>
+      <div class="ok">
+        <strong>只发网址不发这三项</strong> = 对方只能打开工具、录自己的数据，<u>看不到你的任何数据</u>。所以链接可以放心转发。
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section>
+    <h2><span class="num">5</span>常见问题</h2>
+    <div class="card">
+      <ul>
+        <li><strong>打开是旧版 / 看不到新功能？</strong><br/>
+            电脑按 <kbd>Ctrl+Shift+R</kbd>（Mac 是 <kbd>Cmd+Shift+R</kbd>）强制刷新；手机上把 App 关掉重开，或在浏览器里清一下该站点缓存。</li>
+        <li><strong>数据会丢吗？</strong><br/>
+            数据存在本机浏览器里。建议定期点右上角 <kbd>导出备份</kbd> 存一份文件；换设备时用「导入」恢复。配置了云端同步的话则以云端为准。</li>
+        <li><strong>清理浏览器数据会怎样？</strong><br/>
+            会清掉本机数据。所以重要数据请务必先导出备份，或开启云端同步。</li>
+        <li><strong>可以离线用吗？</strong><br/>
+            可以。装到主屏幕后，没网也能打开查看已缓存的内容；恢复联网后云端同步会自动补齐。</li>
+        <li><strong>网址会变吗？</strong><br/>
+            不会。这是固定的正式网址，后续功能更新会直接生效在同一个地址上，不用重新收藏。</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    松果运营 · 选址顾问工作台<br/>
+    有新需求或使用问题，直接找工作台管理员
+  </footer>
+
+</div>
+
+<script>
+document.getElementById("copyBtn").onclick = function(){
+  var url = "https://leona0830zzz-alt.github.io/";
+  var btn = this;
+  var done = function(){ btn.textContent="已复制 ✓"; setTimeout(function(){ btn.textContent="复制网址"; },1800); };
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(url).then(done).catch(fallback);
+  } else { fallback(); }
+  function fallback(){
+    var t=document.createElement("textarea");
+    t.value=url; t.style.position="fixed"; t.style.opacity="0";
+    document.body.appendChild(t); t.select();
+    try{ document.execCommand("copy"); done(); }catch(e){ alert(url); }
+    document.body.removeChild(t);
+  }
+};
+</script>
+</body>
+</html>
