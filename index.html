@@ -269,6 +269,8 @@
 @media(max-width:720px){ #syncText{display:none} }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>if(!(window.supabase&&window.supabase.createClient)){document.write('<scr'+'ipt src="https://fastly.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/scr'+'ipt>');}</script>
+<script>if(!(window.supabase&&window.supabase.createClient)){document.write('<scr'+'ipt src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"><\/scr'+'ipt>');}</script>
 </head>
 <body>
 <div class="wrap">
@@ -403,6 +405,11 @@
     <div class="row">
       <button class="btn-ghost" id="btnPush">立即同步</button>
       <button class="btn-ghost" id="btnPull">拉取云端</button>
+      <button class="btn-ghost" id="btnCfgLink">生成配置链接</button>
+    </div>
+    <div id="cfgLinkBox" style="display:none;margin-top:10px">
+      <p class="muted" style="margin:0 0 6px">这条链接已含云端配置：<b>收藏它</b>，以后任何设备打开都自动进云端模式；<b>发给同事</b>，对方点开也免手填。（含团队空间 Key，勿发到公开群）</p>
+      <input id="cfgLinkInput" readonly onclick="this.select()" style="width:100%;font-size:12px" />
     </div>
     <details class="guide">
       <summary>部署指引（首次使用必看）</summary>
@@ -679,10 +686,61 @@ let view = "board";
 
 /* ---------- sync layer: 本地 <=> Supabase 云端共享 ---------- */
 const SYNC_CFG_KEY="songguo_sync_cfg_v1";
-let syncCfg={mode:"local",url:"",anonKey:"",spaceKey:""};
-let _sb=null,_lastVersion=0,_dirty=false,_syncing=false,_booting=true,_syncTimer=null;
-function loadSyncCfg(){ try{ const r=localStorage.getItem(SYNC_CFG_KEY); if(r) Object.assign(syncCfg,JSON.parse(r)); }catch(e){} }
+/* 内置默认云端配置：三项填齐后，任何人打开本网页都自动进入云端模式，无需手动设置。
+   留空则表示未内置，需用户自行在「☁ 同步」里配置一次（或使用配置链接）。 */
+const DEFAULT_SYNC={url:"",anonKey:"",spaceKey:""};
+let syncCfg={mode:"local",url:"",anonKey:"",spaceKey:"",forceLocal:false};
+let _sb=null,_lastVersion=0,_dirty=false,_syncing=false,_booting=true,_syncTimer=null,_cloudRetryTimer=null;
+function cfgComplete(c){ c=c||syncCfg; return !!(c.url&&c.anonKey&&c.spaceKey); }
+/* 从 URL #cfg= 读取配置（配置链接：一次生成，收藏或转发同事，打开即自动配好） */
+function readCfgFromUrl(){
+  try{
+    const m=(location.hash||"").match(/[#&]cfg=([^&]+)/);
+    if(!m) return null;
+    const b64=m[1].replace(/-/g,"+").replace(/_/g,"/");
+    const o=JSON.parse(decodeURIComponent(escape(atob(b64))));
+    if(o&&o.url&&o.anonKey&&o.spaceKey) return {url:normalizeUrl(o.url),anonKey:String(o.anonKey).trim(),spaceKey:String(o.spaceKey).trim()};
+  }catch(e){}
+  return null;
+}
+function loadSyncCfg(){
+  // 1) 内置默认值打底
+  if(DEFAULT_SYNC.url) syncCfg.url=DEFAULT_SYNC.url;
+  if(DEFAULT_SYNC.anonKey) syncCfg.anonKey=DEFAULT_SYNC.anonKey;
+  if(DEFAULT_SYNC.spaceKey) syncCfg.spaceKey=DEFAULT_SYNC.spaceKey;
+  // 2) 本机保存的配置覆盖
+  try{ const r=localStorage.getItem(SYNC_CFG_KEY); if(r) Object.assign(syncCfg,JSON.parse(r)); }catch(e){}
+  // 3) 配置链接优先级最高（用于新设备 / 缓存被清 / 转发给同事）
+  const fromUrl=readCfgFromUrl();
+  if(fromUrl){
+    Object.assign(syncCfg,fromUrl); syncCfg.forceLocal=false; syncCfg.mode="cloud"; saveSyncCfg();
+    try{ history.replaceState(null,"",location.pathname+location.search); }catch(e){}
+  }
+  // 4) 只要配置齐全且用户没有主动锁定本地，就一律按云端模式启动
+  if(cfgComplete()&&!syncCfg.forceLocal) syncCfg.mode="cloud";
+}
 function saveSyncCfg(){ try{ localStorage.setItem(SYNC_CFG_KEY,JSON.stringify(syncCfg)); }catch(e){} }
+function libReady(){ return !!(window.supabase&&window.supabase.createClient); }
+function waitSupabaseLib(ms){
+  return new Promise(res=>{
+    if(libReady()) return res(true);
+    const t0=Date.now();
+    const t=setInterval(()=>{
+      if(libReady()){ clearInterval(t); res(true); }
+      else if(Date.now()-t0>ms){ clearInterval(t); res(false); }
+    },150);
+  });
+}
+/* 云端已配置但库/网络暂时不可用时，后台持续重试，不再退回「本地模式」误导用户 */
+function scheduleCloudRetry(){
+  if(_cloudRetryTimer) return;
+  _cloudRetryTimer=setInterval(async()=>{
+    if(syncCfg.mode!=="cloud"||!cfgComplete()){ clearInterval(_cloudRetryTimer); _cloudRetryTimer=null; return; }
+    if(!libReady()) return;
+    clearInterval(_cloudRetryTimer); _cloudRetryTimer=null;
+    if(sbClient()){ setSyncStatus("syncing"); await maybePull(); subscribeRemote(); }
+  },5000);
+}
 function normalizeUrl(u){
   u=(u||"").trim();
   if(u.endsWith("/rest/v1/")) u=u.slice(0,-9);
@@ -692,7 +750,7 @@ function normalizeUrl(u){
 }
 function sbClient(){
   if(syncCfg.mode!=="cloud"||!syncCfg.url||!syncCfg.anonKey) return null;
-  if(!window.supabase||!window.supabase.createClient){ setSyncStatus("error","Supabase 库未加载，请检查网络能否访问 CDN"); return null; }
+  if(!libReady()){ setSyncStatus("connecting"); scheduleCloudRetry(); return null; }
   if(!_sb){ try{ _sb=window.supabase.createClient(normalizeUrl(syncCfg.url),syncCfg.anonKey); }catch(e){ _sb=null; setSyncStatus("error",e&&e.message?e.message:String(e)); } }
   return _sb;
 }
@@ -768,7 +826,7 @@ function subscribeRemote(){
   }catch(e){}
 }
 function setSyncStatus(state,msg){
-  const map={local:["本地模式","#888780"],syncing:["同步中…","#BA7517"],synced:["已同步","#3B6D11"],error:["同步失败","#A32D2D"],needcfg:["待配置","#BA7517"]};
+  const map={local:["本地模式","#888780"],syncing:["同步中…","#BA7517"],synced:["云端·已同步","#3B6D11"],error:["同步失败","#A32D2D"],needcfg:["待配置","#BA7517"],connecting:["云端·连接中…","#BA7517"]};
   const m=map[state]||["",""];
   const label=msg?(m[0]+"："+msg):m[0];
   const dot=document.getElementById("syncDot"),tx=document.getElementById("syncText"),tx2=document.getElementById("syncText2");
@@ -782,7 +840,8 @@ function openSync(){
   document.getElementById("sync_key").value=syncCfg.anonKey||"";
   document.getElementById("sync_space").value=syncCfg.spaceKey||"";
   document.getElementById("syncCloudFields").style.display=syncCfg.mode==="cloud"?"block":"none";
-  document.getElementById("syncText2").textContent=syncCfg.mode==="cloud"?"当前：云端模式":"当前：本地模式";
+  document.getElementById("syncText2").textContent=syncCfg.mode==="cloud"?(cfgComplete()?"当前：云端模式（已自动开启）":"当前：云端模式（配置不完整）"):"当前：本地模式";
+  const box=document.getElementById("cfgLinkBox"); if(box) box.style.display="none";
   document.getElementById("maskSync").classList.add("show");
 }
 function closeSync(){ document.getElementById("maskSync").classList.remove("show"); }
@@ -791,14 +850,29 @@ function saveSyncSettings(){
   syncCfg.url=normalizeUrl(document.getElementById("sync_url").value);
   syncCfg.anonKey=document.getElementById("sync_key").value.trim();
   syncCfg.spaceKey=document.getElementById("sync_space").value.trim();
-  if(syncCfg.mode==="cloud"&&(!window.supabase||!window.supabase.createClient)){ setSyncStatus("error","Supabase 库未加载"); alert("Supabase 库未加载，请检查网络能否访问 CDN：cdn.jsdelivr.net"); return; }
+  // 用户主动选「本地」时才锁定本地；否则只要配置齐全，下次打开一律自动云端
+  syncCfg.forceLocal=(syncCfg.mode==="local");
   saveSyncCfg(); _sb=null; _lastVersion=0;
   if(syncCfg.mode==="cloud"){
-    if(!syncCfg.url||!syncCfg.anonKey||!syncCfg.spaceKey){ setSyncStatus("needcfg"); alert("请填完整的 URL / 匿名 Key / 空间 Key"); document.getElementById("syncText2").textContent="配置不完整"; return; }
+    if(!cfgComplete()){ setSyncStatus("needcfg"); alert("请填完整的 URL / 匿名 Key / 空间 Key"); document.getElementById("syncText2").textContent="配置不完整"; return; }
+    if(!libReady()){ setSyncStatus("connecting"); scheduleCloudRetry(); closeSync(); return; }
     setSyncStatus("syncing");
     (async()=>{ await maybePull(); if(syncCfg.mode==="cloud"&&sbClient()) subscribeRemote(); })();
   } else { setSyncStatus("local"); }
   closeSync();
+}
+/* 生成「配置链接」：把云端配置编码进网址，收藏它或发给同事，打开即自动进云端模式 */
+function makeCfgLink(){
+  if(!cfgComplete()){ alert("请先填好并保存云端配置（URL / 匿名 Key / 空间 Key）"); return; }
+  const payload=JSON.stringify({url:syncCfg.url,anonKey:syncCfg.anonKey,spaceKey:syncCfg.spaceKey});
+  const b64=btoa(unescape(encodeURIComponent(payload))).replace(/\+/g,"-").replace(/\//g,"_");
+  const link=location.origin+location.pathname+"#cfg="+b64;
+  const box=document.getElementById("cfgLinkBox"),inp=document.getElementById("cfgLinkInput");
+  if(box) box.style.display="block";
+  if(inp){ inp.value=link; inp.select(); }
+  const done=()=>{ document.getElementById("syncText2").textContent="配置链接已复制，收藏它或发给同事"; };
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(link).then(done).catch(()=>{}); }
+  else { try{ document.execCommand("copy"); done(); }catch(e){} }
 }
 function testSync(){
   const url=normalizeUrl(document.getElementById("sync_url").value);
@@ -1885,8 +1959,11 @@ function fillDealIndustry(){
 async function boot(){
   _booting=true; loadSyncCfg();
   load(); loadBEdits(); loadDistricts(); loadDeals();
-  if(syncCfg.mode==="cloud" && sbClient()){
-    setSyncStatus("syncing"); await maybePull();
+  if(syncCfg.mode==="cloud" && cfgComplete()){
+    setSyncStatus("connecting");
+    await waitSupabaseLib(8000);           // 等 CDN 加载，避免误判为「本地/待配置」
+    if(sbClient()){ setSyncStatus("syncing"); await maybePull(); }
+    else { setSyncStatus("connecting"); scheduleCloudRetry(); }
   } else { setSyncStatus(syncCfg.mode==="cloud"?"needcfg":"local"); }
   initAllBuildings();
   fillSelectors(); renderRegionOptions(); fillDistrictFilters();
@@ -1894,7 +1971,7 @@ async function boot(){
   fillDealIndustry();
   const fd=document.getElementById("fu_date"); if(fd) fd.value=iso(Date.now());
   _booting=false;
-  if(syncCfg.mode==="cloud" && sbClient()) subscribeRemote();
+  if(syncCfg.mode==="cloud" && cfgComplete() && sbClient()) subscribeRemote();
 }
 document.getElementById("btnSync").onclick=openSync;
 document.getElementById("sync_close").onclick=closeSync;
@@ -1903,6 +1980,7 @@ document.getElementById("sync_save").onclick=saveSyncSettings;
 document.getElementById("btnTest").onclick=testSync;
 document.getElementById("btnPush").onclick=doPush;
 document.getElementById("btnPull").onclick=doPull;
+document.getElementById("btnCfgLink").onclick=makeCfgLink;
 document.getElementById("sync_mode").onchange=e=>{ document.getElementById("syncCloudFields").style.display=e.target.value==="cloud"?"block":"none"; };
 // 成交台账事件
 document.getElementById("btnAddDeal").onclick=()=>openDeal();
