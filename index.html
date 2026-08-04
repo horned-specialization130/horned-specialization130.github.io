@@ -267,6 +267,39 @@
 .guide-body{font-size:12.5px;line-height:1.7;color:#444;margin-top:8px;white-space:pre-wrap}
 .muted{color:#666;font-size:13px;line-height:1.6;margin:6px 0 14px}
 @media(max-width:720px){ #syncText{display:none} }
+  /* ---------- 导入 ---------- */
+  .imp-seg{display:inline-flex;background:var(--gray-100);border-radius:10px;padding:3px;gap:2px;}
+  .imp-seg button{border:0;background:transparent;padding:7px 15px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--gray-500);font-weight:600;}
+  .imp-seg button.active{background:#fff;color:var(--ink);box-shadow:var(--shadow-sm);}
+  .imp-sec{margin-top:14px;}
+  .imp-sec>h4{margin:0 0 8px;font-size:12px;font-weight:700;color:var(--gray-700);letter-spacing:.02em;}
+  .imp-drop{border:2px dashed var(--gray-300);border-radius:12px;padding:26px 16px;text-align:center;color:var(--gray-500);font-size:13px;cursor:pointer;transition:.15s;line-height:1.7;}
+  .imp-drop:hover,.imp-drop.over{border-color:var(--orange);background:var(--orange-soft);color:var(--ink-2);}
+  .imp-ta{width:100%;min-height:132px;font-size:13px;line-height:1.7;padding:10px 12px;border:1px solid var(--gray-300);border-radius:10px;font-family:inherit;resize:vertical;box-sizing:border-box;background:#fff;color:var(--ink);}
+  .imp-ta:focus{outline:none;border-color:var(--orange);box-shadow:var(--ring);}
+  .imp-map{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:9px 12px;}
+  .imp-map label{display:block;font-size:11px;color:var(--gray-500);margin-bottom:3px;}
+  .imp-map select{width:100%;}
+  .imp-prev{max-height:330px;overflow:auto;border:1px solid var(--line);border-radius:10px;}
+  .imp-prev table{border-collapse:collapse;width:100%;font-size:12px;white-space:nowrap;}
+  .imp-prev th{position:sticky;top:0;background:#FAFAFB;z-index:1;padding:7px 9px;text-align:left;font-weight:600;border-bottom:1px solid var(--line);color:var(--gray-700);}
+  .imp-prev td{padding:5px 9px;border-bottom:1px solid var(--line);}
+  .imp-prev tbody tr:last-child td{border-bottom:0;}
+  .imp-prev td[contenteditable]{min-width:56px;outline:none;}
+  .imp-prev td[contenteditable]:focus{background:var(--orange-soft);box-shadow:inset 0 0 0 1px var(--orange);border-radius:4px;}
+  .imp-prev tr.isdup{background:var(--warn-soft);}
+  .imp-tag{display:inline-block;font-size:10px;padding:1px 7px;border-radius:20px;font-weight:700;}
+  .imp-tag.tnew{background:var(--ok-soft);color:var(--ok);}
+  .imp-tag.tdup{background:var(--warn-soft);color:var(--warn);}
+  .imp-hint{font-size:12px;color:var(--gray-500);line-height:1.7;}
+  .imp-hint code{background:var(--gray-100);padding:1px 5px;border-radius:4px;font-size:11px;}
+  .imp-bar{height:6px;background:var(--gray-100);border-radius:6px;overflow:hidden;margin-top:8px;}
+  .imp-bar>i{display:block;height:100%;background:var(--orange);width:0;transition:width .3s;}
+  .imp-thumb{max-width:100%;max-height:190px;border-radius:10px;border:1px solid var(--line);display:block;margin:10px auto 0;}
+  @media (max-width:720px){
+    .imp-map{grid-template-columns:1fr 1fr;}
+    .imp-prev{max-height:260px;}
+  }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>if(!(window.supabase&&window.supabase.createClient)){document.write('<scr'+'ipt src="https://fastly.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/scr'+'ipt>');}</script>
@@ -290,9 +323,10 @@
     </nav>
     <div class="actions">
       <button class="btn-ghost" id="btnSync"><span id="syncDot" class="dot"></span><span id="syncText">本地模式</span></button>
-      <button class="btn-ghost" id="btnImport">导入 JSON</button>
-      <button class="btn-ghost" id="btnExport">导出备份</button>
+      <button class="btn-ghost" id="btnImpTop">导入数据</button>
       <button class="btn-ghost" id="btnExportAllXls">导出Excel</button>
+      <button class="btn-ghost" id="btnExport">导出备份</button>
+      <button class="btn-ghost" id="btnImport">恢复备份</button>
       <a class="btn-ghost" id="btnGuide" href="guide.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center">使用说明</a>
       <button class="btn-primary" id="btnAdd">+ 新增询盘</button>
       <input type="file" id="fileInput" accept="application/json" class="hidden" />
@@ -312,6 +346,7 @@
       <select id="fIndustry"><option value="">全部行业</option></select>
       <input type="text" class="search" id="fSearch" placeholder="搜索客户 / 公司 / 备注…" />
       <div class="spacer"></div>
+      <button class="btn-ghost" id="btnImpInq">导入询盘</button>
       <button class="btn-ghost" id="btnExportInquiries">导出询盘Excel</button>
     </div>
 
@@ -325,6 +360,7 @@
       <select id="bRegion"><option value="">全部片区</option><option>珠江新城</option><option>金融城</option><option>琶洲</option><option>创意园</option><option>天河商圈</option><option>越秀</option><option>番禺万博</option><option>科学城</option><option>五山/元岗</option></select>
       <button class="btn-primary" id="btnAddBuilding">+ 新增楼盘</button>
       <button class="btn-ghost" id="btnAddDistrict">+ 新增片区</button>
+      <button class="btn-ghost" id="btnImpBld">导入楼盘</button>
       <button class="btn-ghost" id="btnExportBuildings">导出楼盘Excel</button>
     </div>
     <div id="districts" class="districts"></div>
@@ -343,6 +379,7 @@
       <select id="dfIndustry"><option value="">全部行业</option></select>
       <input type="text" class="search" id="dfSearch" placeholder="搜索企业 / 项目…" />
       <div class="spacer"></div>
+      <button class="btn-ghost" id="btnImpDeal">导入台账</button>
       <button class="btn-ghost" id="btnExportDeals">导出台账Excel</button>
       <button class="btn-primary" id="btnAddDeal">+ 新增成交</button>
     </div>
@@ -353,6 +390,96 @@
         </tr></thead>
         <tbody id="dealsBody"></tbody>
       </table>
+    </div>
+  </div>
+</div>
+
+<div class="mask" id="maskImp">
+  <div class="modal" style="max-width:940px">
+    <h2>导入数据</h2>
+    <div class="desc">支持 Excel / CSV 文件、直接粘贴文字、图片识别三种方式。导入前可预览并逐格修改，确认后才写入。</div>
+
+    <div class="row" style="gap:14px;flex-wrap:wrap;align-items:flex-end">
+      <div class="form-row" style="min-width:170px;margin:0">
+        <label>导入到</label>
+        <select id="imp_target">
+          <option value="inquiries">询盘管理</option>
+          <option value="deals">成交台账</option>
+          <option value="buildings">楼盘库</option>
+        </select>
+      </div>
+      <div class="form-row" style="min-width:170px;margin:0">
+        <label>重复数据处理</label>
+        <select id="imp_dupmode">
+          <option value="skip">跳过（推荐）</option>
+          <option value="update">更新已有记录</option>
+          <option value="add">仍然新增一条</option>
+        </select>
+      </div>
+      <div class="spacer"></div>
+      <div class="imp-seg" id="impSrcSeg">
+        <button data-src="file" class="active">Excel / CSV</button>
+        <button data-src="text">文字</button>
+        <button data-src="img">图片</button>
+      </div>
+    </div>
+
+    <div class="imp-sec" id="impPaneFile">
+      <div class="imp-drop" id="impDrop">
+        点击选择文件，或把文件拖到这里<br>
+        <span style="font-size:12px">支持 .xlsx / .xls / .csv —— 用工作台导出的表格改完可直接传回来</span>
+      </div>
+      <input type="file" id="impFile" accept=".xlsx,.xls,.csv,.txt" class="hidden" />
+      <div class="form-row hidden" id="impSheetWrap" style="margin-top:10px">
+        <label>选择工作表</label>
+        <select id="imp_sheet"></select>
+      </div>
+    </div>
+
+    <div class="imp-sec hidden" id="impPaneText">
+      <textarea class="imp-ta" id="impText" placeholder="两种都支持：&#10;1) 从 Excel / 表格直接复制粘贴（带表头最好）&#10;2) 一行一条的流水文字，例如：&#10;此刻此刻传媒-New Setup-550sqm-君超中心32F-145&#10;东吴证券-Relocation-150sqm-粤海金融大厦18F-180包装修"></textarea>
+      <div class="row" style="margin-top:9px;align-items:center">
+        <span class="imp-hint" id="impTextHint">粘贴后点「解析」，系统会自动识别企业、面积、租金、楼层、类型等字段。</span>
+        <div class="spacer"></div>
+        <button class="btn-ghost" id="impTextParse">解析</button>
+      </div>
+    </div>
+
+    <div class="imp-sec hidden" id="impPaneImg">
+      <div class="imp-drop" id="impImgDrop">
+        点击选择图片，或直接 <b>Ctrl/Cmd+V</b> 粘贴截图<br>
+        <span style="font-size:12px">适合微信里收到的台账截图；识别结果会显示在下方，可修改后再导入</span>
+      </div>
+      <input type="file" id="impImgFile" accept="image/*" class="hidden" />
+      <img id="impThumb" class="imp-thumb hidden" alt="" />
+      <div class="hidden" id="impOcrWrap" style="margin-top:10px">
+        <div class="imp-bar"><i id="impOcrBar"></i></div>
+        <div class="imp-hint" id="impOcrMsg" style="margin-top:6px"></div>
+        <textarea class="imp-ta" id="impOcrText" style="margin-top:9px" placeholder="识别出的文字会出现在这里，核对修改后点「解析」"></textarea>
+        <div class="row" style="margin-top:9px">
+          <span class="imp-hint">机器识别难免有错，<b>务必核对</b>再解析。</span>
+          <div class="spacer"></div>
+          <button class="btn-ghost" id="impOcrParse">解析</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="imp-sec hidden" id="impMapWrap">
+      <h4>字段对应（系统已自动匹配，可手动调整）</h4>
+      <div class="imp-map" id="impMap"></div>
+    </div>
+
+    <div class="imp-sec hidden" id="impPrevWrap">
+      <h4>预览 <span class="imp-hint" id="impPrevSum"></span></h4>
+      <div class="imp-prev"><table id="impPrevTable"><thead></thead><tbody></tbody></table></div>
+      <div class="imp-hint" style="margin-top:7px">单元格可直接点进去改；取消勾选的行不会导入。</div>
+    </div>
+
+    <div class="row end" style="margin-top:18px">
+      <span class="imp-hint" id="impErr" style="color:var(--danger)"></span>
+      <div class="spacer"></div>
+      <button class="btn-ghost" id="imp_close">取消</button>
+      <button class="btn-primary" id="imp_do" disabled>确认导入</button>
     </div>
   </div>
 </div>
@@ -1593,10 +1720,11 @@ function matchingBuildings(regions){
 
 /* ---------- filters UI ---------- */
 function fillSelectors(){
-  const fs=document.getElementById("fStage");
-  STAGES.forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s;fs.appendChild(o);});
-  const fi=document.getElementById("fIndustry");
-  [...new Set(data.map(x=>x.industry).filter(Boolean))].sort().forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s;fi.appendChild(o);});
+  const fs=document.getElementById("fStage"), cs=fs.value;
+  fs.innerHTML=`<option value="">全部阶段</option>`+STAGES.map(s=>`<option${s===cs?" selected":""}>${esc(s)}</option>`).join("");
+  const fi=document.getElementById("fIndustry"), ci=fi.value;
+  const inds=[...new Set(data.map(x=>x.industry).filter(Boolean))].sort();
+  fi.innerHTML=`<option value="">全部行业</option>`+inds.map(s=>`<option${s===ci?" selected":""}>${esc(s)}</option>`).join("");
 }
 
 /* ---------- inquiry building tracker ---------- */
@@ -1852,6 +1980,511 @@ function exportXls(which){
   xlsDownload(fn,sheets);
 }
 
+/* ================= 通用导入（Excel / 文字 / 图片） ================= */
+const IMP_TYPE_MAP={"new setup":"新设","newsetup":"新设","new-setup":"新设","setup":"新设","新设":"新设","新租":"新设","新设立":"新设",
+  "relocation":"搬迁","relocate":"搬迁","reloc":"搬迁","搬迁":"搬迁","迁址":"搬迁",
+  "renewal":"续租","renew":"续租","续租":"续租","续约":"续租",
+  "expansion":"扩租","expand":"扩租","扩租":"扩租","增租":"扩租"};
+const IMP_REGIONS=["珠江新城","琶洲","金融城","创意园","天河商圈","越秀","番禺万博","科学城","五山/元岗","体育中心","其他"];
+
+const IMP_DEFS={
+  inquiries:{label:"询盘管理",fields:[
+    {k:"company",label:"客户/公司",alias:["客户/公司","客户","公司","企业","客户名称","公司名称","企业名称"]},
+    {k:"contact",label:"联系人",alias:["联系人","对接人","联系方式","联系","电话","手机","手机号"]},
+    {k:"industry",label:"行业",alias:["行业","所属行业"]},
+    {k:"area",label:"面积需求㎡",alias:["面积需求㎡","面积需求","需求面积","面积","面积㎡","面积(㎡)"]},
+    {k:"budget",label:"预算",alias:["预算元/㎡/月","预算","租金预算","预算单价","可接受租金"]},
+    {k:"source",label:"来源",alias:["来源","渠道","客户来源"]},
+    {k:"stage",label:"阶段",alias:["阶段","状态","进展","跟进阶段"]},
+    {k:"regions",label:"片区偏好",alias:["片区偏好","片区","意向片区","区域","商务区","意向区域"]},
+    {k:"expect",label:"期望时间",alias:["期望时间","入驻时间","期望","预计入驻"]},
+    {k:"next",label:"下次跟进",alias:["下次跟进","跟进日期","下次联系"]},
+    {k:"remark",label:"备注",alias:["备注","说明","需求描述","备注信息"]}
+  ]},
+  deals:{label:"成交台账",fields:[
+    {k:"company",label:"企业",alias:["企业","客户","公司","企业名称","成交企业","客户名称","租户"]},
+    {k:"project",label:"项目",alias:["项目","楼盘","大厦","物业","项目名称","楼盘名称","写字楼"]},
+    {k:"district",label:"商务区",alias:["商务区","片区","区域","板块","所在片区"]},
+    {k:"area",label:"面积㎡",alias:["面积㎡","面积","成交面积","面积(㎡)","建筑面积"]},
+    {k:"type",label:"类型",alias:["类型","成交类型","性质","交易类型"]},
+    {k:"rent",label:"租金",alias:["租金","成交租金","单价","租金单价","成交单价"]},
+    {k:"industry",label:"行业",alias:["行业","所属行业"]},
+    {k:"floor",label:"楼层",alias:["楼层","层","所在楼层"]},
+    {k:"note",label:"备注",alias:["备注","说明","备注信息"]}
+  ]},
+  buildings:{label:"楼盘库",fields:[
+    {k:"district",label:"片区",alias:["片区","商务区","区域","板块"]},
+    {k:"name",label:"楼盘名称",alias:["楼盘名称","楼盘","名称","项目","大厦","物业","项目名称"]},
+    {k:"sub",label:"子区/位置",alias:["子区/位置","子区","位置","地址","所在位置"]},
+    {k:"rent_quote",label:"租金参考",alias:["租金参考","租金报价","报价","租金","挂牌租金","租金(元/㎡/月)"]},
+    {k:"rent_floor",label:"租金底价",alias:["租金底价","底价","最低租金"]},
+    {k:"free",label:"免租期",alias:["免租期","免租"]},
+    {k:"mgmt",label:"管理费",alias:["管理费","物业费","物管费"]},
+    {k:"grade",label:"楼宇等级",alias:["楼宇等级","等级","甲级乙级"]},
+    {k:"reno",label:"装修",alias:["装修","交付标准","是否定制装修","交付"]},
+    {k:"status",label:"状态",alias:["状态","租售状态","空置状态"]},
+    {k:"area",label:"面积段",alias:["面积段","可租面积","面积","面积段（㎡）"]},
+    {k:"ac",label:"空调",alias:["空调","中央空调"]},
+    {k:"parking",label:"停车",alias:["停车","车位","停车费"]},
+    {k:"metro",label:"地铁",alias:["地铁","交通","地铁交通"]},
+    {k:"deposit",label:"押金",alias:["押金","保证金"]},
+    {k:"note",label:"备注",alias:["备注","说明","备注信息"]}
+  ]}
+};
+
+let impState={target:"inquiries",src:"file",headers:[],rows:[],mapping:{},recs:[],sheets:[],mode:"table"};
+
+function impN(s){ return String(s==null?"":s).replace(/[\s\u3000（）()·・\-—－_]/g,"").toLowerCase(); }
+function impNum(v){ const n=Number(String(v==null?"":v).replace(/[^\d.]/g,"")); return isFinite(n)&&n>0?n:null; }
+function impShowErr(m){ document.getElementById("impErr").textContent=m||""; }
+
+/* ---- 打开 / 关闭 ---- */
+function impOpen(target){
+  impState={target:target||"inquiries",src:"file",headers:[],rows:[],mapping:{},recs:[],sheets:[],mode:"table"};
+  document.getElementById("imp_target").value=impState.target;
+  document.getElementById("imp_dupmode").value="skip";
+  document.getElementById("impText").value="";
+  document.getElementById("impOcrText").value="";
+  document.getElementById("impThumb").classList.add("hidden");
+  document.getElementById("impOcrWrap").classList.add("hidden");
+  document.getElementById("impSheetWrap").classList.add("hidden");
+  impSetSrc("file"); impResetResult();
+  document.getElementById("maskImp").classList.add("show");
+}
+function impClose(){ document.getElementById("maskImp").classList.remove("show"); }
+function impResetResult(){
+  impState.headers=[]; impState.rows=[]; impState.recs=[]; impState.mapping={};
+  document.getElementById("impMapWrap").classList.add("hidden");
+  document.getElementById("impPrevWrap").classList.add("hidden");
+  impShowErr("");
+  const b=document.getElementById("imp_do"); b.disabled=true; b.textContent="确认导入";
+}
+function impSetSrc(src){
+  impState.src=src;
+  document.querySelectorAll("#impSrcSeg button").forEach(b=>b.classList.toggle("active",b.dataset.src===src));
+  document.getElementById("impPaneFile").classList.toggle("hidden",src!=="file");
+  document.getElementById("impPaneText").classList.toggle("hidden",src!=="text");
+  document.getElementById("impPaneImg").classList.toggle("hidden",src!=="img");
+  impResetResult();
+}
+
+/* ---- CSV / 文本表格 ---- */
+function impParseCsv(text){
+  const first=(text.split("\n")[0]||"");
+  const delim=(first.split("\t").length>first.split(",").length)?"\t":",";
+  const rows=[]; let row=[],cur="",q=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(q){ if(ch==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=ch; }
+    else if(ch==='"'){ q=true; }
+    else if(ch===delim){ row.push(cur); cur=""; }
+    else if(ch==="\n"){ row.push(cur); rows.push(row); row=[]; cur=""; }
+    else if(ch!=="\r"){ cur+=ch; }
+  }
+  if(cur!==""||row.length){ row.push(cur); rows.push(row); }
+  return rows.filter(r=>r.some(c=>String(c).trim()!==""));
+}
+
+/* ---- SpreadsheetML (.xls，本工作台导出的格式) ---- */
+function impParseSpreadsheetML(text){
+  const doc=new DOMParser().parseFromString(text,"application/xml");
+  return [...doc.querySelectorAll("Worksheet")].map(ws=>{
+    const nm=ws.getAttribute("ss:Name")||ws.getAttribute("Name")||"Sheet";
+    const rows=[...ws.querySelectorAll("Row")].map(r=>{
+      const arr=[]; let ci=0;
+      [...r.querySelectorAll("Cell")].forEach(c=>{
+        const ix=c.getAttribute("ss:Index"); if(ix) ci=Number(ix)-1;
+        const d=c.querySelector("Data"); arr[ci]=d?d.textContent:""; ci++;
+      });
+      for(let i=0;i<arr.length;i++){ if(arr[i]==null) arr[i]=""; }
+      return arr;
+    });
+    return {name:nm,rows:rows};
+  });
+}
+
+/* ---- xlsx：原生解 ZIP + 解析 sheet（零依赖、可离线） ---- */
+async function impUnzip(ab){
+  const dv=new DataView(ab), u8=new Uint8Array(ab);
+  let eocd=-1;
+  for(let i=u8.length-22;i>=0 && i>u8.length-66000;i--){ if(dv.getUint32(i,true)===0x06054b50){ eocd=i; break; } }
+  if(eocd<0) throw new Error("文件不是有效的 xlsx");
+  const cnt=dv.getUint16(eocd+10,true); let p=dv.getUint32(eocd+16,true);
+  const out={}, td=new TextDecoder();
+  for(let i=0;i<cnt;i++){
+    if(dv.getUint32(p,true)!==0x02014b50) break;
+    const method=dv.getUint16(p+10,true), csize=dv.getUint32(p+20,true);
+    const nlen=dv.getUint16(p+28,true), elen=dv.getUint16(p+30,true), clen=dv.getUint16(p+32,true);
+    const lho=dv.getUint32(p+42,true);
+    const name=td.decode(u8.subarray(p+46,p+46+nlen));
+    const lnlen=dv.getUint16(lho+26,true), lelen=dv.getUint16(lho+28,true);
+    const st=lho+30+lnlen+lelen;
+    out[name]={method:method,data:u8.subarray(st,st+csize)};
+    p+=46+nlen+elen+clen;
+  }
+  return out;
+}
+async function impInflate(ent){
+  if(!ent) return "";
+  if(ent.method===0) return new TextDecoder().decode(ent.data);
+  if(typeof DecompressionStream==="undefined") throw new Error("当前浏览器不支持直接读 xlsx，请另存为 CSV 后导入");
+  const s=new Blob([ent.data]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+  return new TextDecoder().decode(await new Response(s).arrayBuffer());
+}
+function impColIdx(ref){ const m=/^([A-Z]+)/.exec(ref||""); if(!m) return 0; let n=0; for(const ch of m[1]) n=n*26+(ch.charCodeAt(0)-64); return n-1; }
+function impSheetRows(xml,shared){
+  const doc=new DOMParser().parseFromString(xml,"application/xml");
+  return [...doc.querySelectorAll("sheetData row")].map(r=>{
+    const arr=[];
+    [...r.querySelectorAll("c")].forEach(c=>{
+      const idx=impColIdx(c.getAttribute("r")); const t=c.getAttribute("t"); let v="";
+      if(t==="inlineStr"){ const is=c.querySelector("is"); v=is?is.textContent:""; }
+      else { const vn=c.querySelector("v"); v=vn?vn.textContent:""; if(t==="s") v=shared[Number(v)]||""; }
+      arr[idx]=v;
+    });
+    for(let i=0;i<arr.length;i++){ if(arr[i]==null) arr[i]=""; }
+    return arr;
+  });
+}
+async function impParseXlsx(ab){
+  const z=await impUnzip(ab);
+  let shared=[];
+  if(z["xl/sharedStrings.xml"]){
+    const sx=new DOMParser().parseFromString(await impInflate(z["xl/sharedStrings.xml"]),"application/xml");
+    shared=[...sx.querySelectorAll("si")].map(si=>[...si.querySelectorAll("t")].filter(t=>!t.closest("rPh")).map(t=>t.textContent).join(""));
+  }
+  const rels={};
+  if(z["xl/_rels/workbook.xml.rels"]){
+    const rx=new DOMParser().parseFromString(await impInflate(z["xl/_rels/workbook.xml.rels"]),"application/xml");
+    [...rx.querySelectorAll("Relationship")].forEach(r=>{ rels[r.getAttribute("Id")]=r.getAttribute("Target"); });
+  }
+  let metas=[];
+  if(z["xl/workbook.xml"]){
+    const wx=new DOMParser().parseFromString(await impInflate(z["xl/workbook.xml"]),"application/xml");
+    metas=[...wx.querySelectorAll("sheets sheet")].map(s=>{
+      const rid=s.getAttribute("r:id")||s.getAttribute("id")||"";
+      let tg=rels[rid]||"";
+      if(tg){ tg=tg.replace(/^\//,""); if(!/^xl\//.test(tg)) tg="xl/"+tg; }
+      return {name:s.getAttribute("name")||"Sheet",path:tg};
+    });
+  }
+  if(!metas.length){
+    metas=Object.keys(z).filter(k=>/^xl\/worksheets\/sheet\d+\.xml$/.test(k)).sort().map((k,i)=>({name:"Sheet"+(i+1),path:k}));
+  }
+  const out=[];
+  for(const m of metas){
+    const ent=z[m.path]||z["xl/worksheets/sheet1.xml"];
+    if(!ent) continue;
+    out.push({name:m.name,rows:impSheetRows(await impInflate(ent),shared)});
+  }
+  return out;
+}
+
+/* ---- 文件入口 ---- */
+async function impHandleFile(f){
+  impResetResult();
+  if(!f) return;
+  try{
+    const nm=(f.name||"").toLowerCase();
+    let sheets=[];
+    if(/\.(csv|txt)$/.test(nm)){ sheets=[{name:"CSV",rows:impParseCsv(await f.text())}]; }
+    else{
+      const buf=await f.arrayBuffer(); const h=new Uint8Array(buf.slice(0,4));
+      if(h[0]===0x50&&h[1]===0x4b){ sheets=await impParseXlsx(buf); }
+      else if(h[0]===0xD0&&h[1]===0xCF){ throw new Error("这是旧版二进制 .xls，请用 Excel / WPS 另存为 .xlsx 或 .csv 后再导入"); }
+      else{
+        const t=new TextDecoder("utf-8").decode(buf);
+        sheets=/<Workbook[\s>]|mso-application/i.test(t)?impParseSpreadsheetML(t):[{name:"文本",rows:impParseCsv(t)}];
+      }
+    }
+    impState.sheets=sheets.filter(s=>s.rows&&s.rows.length);
+    if(!impState.sheets.length) throw new Error("没有从文件里读到数据");
+    const sel=document.getElementById("imp_sheet");
+    sel.innerHTML=impState.sheets.map((s,i)=>'<option value="'+i+'">'+esc(s.name)+'（'+s.rows.length+' 行）</option>').join("");
+    document.getElementById("impSheetWrap").classList.toggle("hidden",impState.sheets.length<2);
+    let pick=0; const lab=IMP_DEFS[impState.target].label;
+    impState.sheets.forEach((s,i)=>{ if(impN(s.name)===impN(lab)) pick=i; });
+    sel.value=String(pick); impUseSheet(pick);
+  }catch(e){ impShowErr(e&&e.message?e.message:String(e)); }
+}
+
+function impUseSheet(i){
+  const raw=(impState.sheets[i]||{rows:[]}).rows.map(r=>r.map(c=>String(c==null?"":c).trim()));
+  const fields=IMP_DEFS[impState.target].fields;
+  let hi=-1,best=0;
+  for(let r=0;r<Math.min(6,raw.length);r++){
+    let sc=0; raw[r].forEach(c=>{ if(c&&fields.some(f=>f.alias.some(a=>impN(a)===impN(c)))) sc++; });
+    if(sc>best){ best=sc; hi=r; }
+  }
+  if(hi>=0&&best>=1){ impState.headers=raw[hi]; impState.rows=raw.slice(hi+1); }
+  else{ impState.headers=(raw[0]||[]).map((_,j)=>"第"+(j+1)+"列"); impState.rows=raw; }
+  impState.rows=impState.rows.filter(r=>r.some(c=>c!==""));
+  impState.mode="table"; impAutoMap(); impRenderMap(); impBuildRecs();
+}
+function impAutoMap(){
+  const fields=IMP_DEFS[impState.target].fields, m={}, used=new Set();
+  fields.forEach(f=>{
+    let idx=-1;
+    impState.headers.forEach((h,j)=>{ if(idx<0&&!used.has(j)&&h&&f.alias.some(a=>impN(a)===impN(h))) idx=j; });
+    if(idx<0) impState.headers.forEach((h,j)=>{ if(idx<0&&!used.has(j)&&h&&f.alias.some(a=>impN(a).length>=2&&impN(h).indexOf(impN(a))>=0)) idx=j; });
+    if(idx>=0){ m[f.k]=idx; used.add(idx); }
+  });
+  impState.mapping=m;
+}
+function impRenderMap(){
+  const fields=IMP_DEFS[impState.target].fields;
+  const opts='<option value="-1">（不导入）</option>'+impState.headers.map((h,j)=>'<option value="'+j+'">'+esc(h||("第"+(j+1)+"列"))+'</option>').join("");
+  document.getElementById("impMap").innerHTML=fields.map(f=>{
+    const v=impState.mapping[f.k]==null?-1:impState.mapping[f.k];
+    return '<div><label>'+esc(f.label)+'</label><select data-fk="'+f.k+'">'+opts.replace('value="'+v+'"','value="'+v+'" selected')+'</select></div>';
+  }).join("");
+  document.getElementById("impMap").querySelectorAll("select").forEach(s=>{
+    s.onchange=()=>{ const v=Number(s.value); if(v<0) delete impState.mapping[s.dataset.fk]; else impState.mapping[s.dataset.fk]=v; impBuildRecs(); };
+  });
+  document.getElementById("impMapWrap").classList.remove("hidden");
+}
+function impBuildRecs(){
+  const fields=IMP_DEFS[impState.target].fields;
+  impState.recs=impState.rows.map(r=>{
+    const o={}; fields.forEach(f=>{ const j=impState.mapping[f.k]; o[f.k]=(j==null||j<0)?"":(r[j]||""); });
+    return o;
+  }).filter(o=>Object.keys(o).some(k=>String(o[k]).trim()!==""));
+  impRenderPrev(true);
+}
+
+/* ---- 自由文字解析 ---- */
+function impFindBuilding(q){
+  const n=impN(q); if(n.length<2) return null; let best=null;
+  for(const d in ALLBUILDINGS){ for(const b of (ALLBUILDINGS[d]||[])){
+    const bn=impN(b.name);
+    if(bn===n) return {district:d,name:b.name};
+    if(!best&&Math.min(bn.length,n.length)>=3&&(bn.indexOf(n)>=0||n.indexOf(bn)>=0)) best={district:d,name:b.name};
+  } }
+  return best;
+}
+function impParseLine(target,line){
+  const prot=line.replace(/(\d)\s*[-－—–~～]\s*(\d)/g,"$1\u0001$2");
+  const segs=prot.split(/[\-－—–|｜\t]+|\s{2,}/).map(x=>x.replace(/\u0001/g,"-").trim()).filter(Boolean);
+  if(!segs.length) return null;
+  const o={}; IMP_DEFS[target].fields.forEach(f=>{ o[f.k]=""; });
+  const rest=[];
+  for(let seg of segs){
+    let t=seg; if(!t) continue;
+    const lt=t.toLowerCase().replace(/\s+/g," ").trim();
+    if(target==="deals"&&!o.type){
+      if(IMP_TYPE_MAP[lt]){ o.type=IMP_TYPE_MAP[lt]; continue; }
+      const hit=Object.keys(IMP_TYPE_MAP).find(k=>k.length>=4&&lt.indexOf(k)>=0);
+      if(hit){ o.type=IMP_TYPE_MAP[hit]; t=t.replace(new RegExp(hit,"i"),"").trim(); if(!t) continue; }
+    }
+    if(target==="buildings"&&!o.district&&(DISTRICTS.indexOf(t)>=0||IMP_REGIONS.indexOf(t)>=0)){ o.district=t; continue; }
+    if(target==="deals"&&!o.district&&IMP_REGIONS.indexOf(t)>=0){ o.district=t; continue; }
+    if(target==="inquiries"&&!o.regions&&IMP_REGIONS.indexOf(t)>=0){ o.regions=t; continue; }
+    if(target==="inquiries"&&!o.contact&&/^1[3-9]\d{9}$/.test(t)){ o.contact=t; continue; }
+    if(target==="inquiries"&&!o.stage&&STAGES.indexOf(t)>=0){ o.stage=t; continue; }
+    const am=/(\d[\d,]*(?:\.\d+)?)\s*(sqm|㎡|m2|m²|平方米|平米|平)/i.exec(t);
+    if(am&&!o.area){ o.area=am[1].replace(/,/g,""); t=t.replace(am[0],"").trim(); if(!t) continue; }
+    if(target!=="buildings"){
+      const fm=/(\d+(?:-\d+)?)\s*(F|楼|层)(全层|整层)?/i.exec(t);
+      if(fm&&!o.floor){ o.floor=fm[0].replace(/\s+/g,""); t=t.replace(fm[0],"").trim(); if(!t) continue; }
+      if(!o.floor&&/^(整层|全层)$/.test(t)){ o.floor=t; continue; }
+    }
+    const rk=target==="deals"?"rent":(target==="buildings"?"rent_quote":"budget");
+    const rm=/^(\d+(?:\.\d+)?(?:-\d+(?:\.\d+)?)?)\s*(?:元)?\s*(?:\/㎡)?\s*(?:\/月)?(.*)$/.exec(t);
+    if(rm&&!o[rk]){
+      const v=parseFloat(rm[1]);
+      if(v>=20&&v<=5000){ o[rk]=rm[1]; const tail=(rm[2]||"").trim(); if(tail) rest.push(tail); continue; }
+    }
+    rest.push(t);
+  }
+  if(target==="deals"){
+    if(rest.length) o.company=rest.shift();
+    if(rest.length&&!o.project) o.project=rest.shift();
+    o.note=[o.note,rest.join(" ")].filter(Boolean).join(" ");
+    if(o.project){ const hit=impFindBuilding(o.project); if(hit){ o.project=hit.name; if(!o.district) o.district=hit.district; } }
+  } else if(target==="buildings"){
+    if(rest.length) o.name=rest.shift();
+    o.note=[o.note,rest.join(" ")].filter(Boolean).join(" ");
+    if(!o.district&&o.name){ const hit=impFindBuilding(o.name); if(hit) o.district=hit.district; }
+  } else {
+    if(rest.length) o.company=rest.shift();
+    o.remark=[o.remark,rest.join(" ")].filter(Boolean).join(" ");
+  }
+  return Object.keys(o).some(k=>String(o[k]).trim()!=="")?o:null;
+}
+function impParseFree(){
+  const text=(impState.src==="img"?document.getElementById("impOcrText").value:document.getElementById("impText").value||"").replace(/\r/g,"");
+  if(!text.trim()){ impShowErr("请先粘贴文字，或先识别图片"); return; }
+  impResetResult();
+  const lines=text.split("\n").map(l=>l.trim()).filter(Boolean);
+  if(!lines.length){ impShowErr("没有可解析的内容"); return; }
+  const fields=IMP_DEFS[impState.target].fields;
+  const head=lines[0].split(/[\t,，]/).filter(c=>c.trim()&&fields.some(f=>f.alias.some(a=>impN(a)===impN(c))));
+  if(head.length>=2||lines[0].indexOf("\t")>=0){
+    impState.sheets=[{name:"粘贴内容",rows:impParseCsv(text)}];
+    document.getElementById("impSheetWrap").classList.add("hidden");
+    impUseSheet(0); return;
+  }
+  impState.mode="free"; impState.headers=[]; impState.mapping={};
+  document.getElementById("impMapWrap").classList.add("hidden");
+  impState.recs=lines.map(l=>impParseLine(impState.target,l)).filter(Boolean);
+  impRenderPrev(true);
+}
+
+/* ---- 图片识别 ---- */
+function impLoadTesseract(){
+  if(window.Tesseract) return Promise.resolve(window.Tesseract);
+  const urls=["https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js",
+              "https://fastly.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js",
+              "https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"];
+  return new Promise((res,rej)=>{
+    let i=0;
+    const next=()=>{
+      if(i>=urls.length){ rej(new Error("CDN 不可用")); return; }
+      const s=document.createElement("script"); s.src=urls[i++];
+      s.onload=()=>{ window.Tesseract?res(window.Tesseract):next(); };
+      s.onerror=next; document.head.appendChild(s);
+    };
+    next();
+  });
+}
+async function impHandleImage(file){
+  if(!file) return;
+  impResetResult();
+  const th=document.getElementById("impThumb");
+  th.src=URL.createObjectURL(file); th.classList.remove("hidden");
+  const wrap=document.getElementById("impOcrWrap"); wrap.classList.remove("hidden");
+  const bar=document.getElementById("impOcrBar"), msg=document.getElementById("impOcrMsg");
+  bar.style.width="6%"; msg.textContent="正在加载识别引擎（首次约 10-30 秒，之后有缓存）…";
+  let T=null;
+  try{ T=await impLoadTesseract(); }
+  catch(e){ bar.style.width="0"; msg.textContent="识别引擎加载失败（通常是网络问题）。你可以对着图片把内容打到下面的框里，效果一样。"; return; }
+  msg.textContent="正在识别文字…";
+  try{
+    const res=await T.recognize(file,"chi_sim+eng",{logger:m=>{
+      if(m.status==="recognizing text"){ const p=Math.round(m.progress*100); bar.style.width=Math.round(15+m.progress*85)+"%"; msg.textContent="正在识别文字… "+p+"%"; }
+      else if(m.status){ msg.textContent="准备中："+m.status; }
+    }});
+    bar.style.width="100%";
+    const txt=((res&&res.data&&res.data.text)||"").replace(/[ \t]+/g," ").replace(/\n{2,}/g,"\n").trim();
+    document.getElementById("impOcrText").value=txt;
+    msg.textContent=txt?"识别完成。请重点核对数字（面积/租金/楼层），改好后点「解析」。":"没识别出文字，换一张更清晰的图，或手动录到下面的框里。";
+  }catch(e){ bar.style.width="0"; msg.textContent="识别失败："+(e&&e.message?e.message:e); }
+}
+
+/* ---- 预览 ---- */
+function impFindDup(target,rec){
+  if(target==="inquiries"){ const k=impN(rec.company); return k?(data.find(x=>impN(x.company)===k)||null):null; }
+  if(target==="deals"){
+    const c=impN(rec.company); if(!c) return null;
+    const p=impN(rec.project);
+    return deals.find(d=>impN(d.company)===c&&impN(d.project)===p)||null;
+  }
+  const n=impN(rec.name); if(!n) return null;
+  const d=(rec.district||"").trim();
+  const list=d?(ALLBUILDINGS[d]||[]):[];
+  return list.find(b=>impN(b.name)===n)||null;
+}
+function impRenderPrev(reset){
+  const fields=IMP_DEFS[impState.target].fields, recs=impState.recs;
+  const wrap=document.getElementById("impPrevWrap");
+  if(!recs.length){ wrap.classList.add("hidden"); impShowErr("没有解析出可导入的数据，检查一下内容或字段对应"); document.getElementById("imp_do").disabled=true; return; }
+  impShowErr("");
+  const dm=document.getElementById("imp_dupmode").value;
+  let nNew=0,nDup=0;
+  recs.forEach(r=>{ r._dup=!!impFindDup(impState.target,r); if(r._dup) nDup++; else nNew++;
+    if(reset||r._on===undefined) r._on=!(r._dup&&dm==="skip"); });
+  const MAX=300, show=recs.slice(0,MAX), tb=document.getElementById("impPrevTable");
+  tb.querySelector("thead").innerHTML='<tr><th style="width:38px">导入</th><th style="width:52px">状态</th>'+fields.map(f=>'<th>'+esc(f.label)+'</th>').join("")+'</tr>';
+  tb.querySelector("tbody").innerHTML=show.map((r,i)=>
+    '<tr class="'+(r._dup?"isdup":"")+'"><td><input type="checkbox" class="impChk" data-i="'+i+'"'+(r._on?" checked":"")+'></td>'+
+    '<td><span class="imp-tag '+(r._dup?"tdup":"tnew")+'">'+(r._dup?"重复":"新增")+'</span></td>'+
+    fields.map(f=>'<td contenteditable data-i="'+i+'" data-k="'+f.k+'">'+esc(r[f.k]||"")+'</td>').join("")+'</tr>').join("");
+  const on=recs.filter(r=>r._on).length;
+  document.getElementById("impPrevSum").textContent="共 "+recs.length+" 条：新增 "+nNew+" 、与现有重复 "+nDup+(recs.length>MAX?"（只显示前 "+MAX+" 条，导入不受影响）":"");
+  wrap.classList.remove("hidden");
+  const b=document.getElementById("imp_do"); b.disabled=on===0; b.textContent="确认导入 "+on+" 条";
+}
+
+/* ---- 写入 ---- */
+function impDoImport(){
+  const t=impState.target, dm=document.getElementById("imp_dupmode").value;
+  const list=impState.recs.filter(r=>r._on);
+  if(!list.length) return;
+  let added=0,updated=0,skipped=0; const newDist=[];
+  const mergeIn=(obj,patch)=>{ Object.keys(patch).forEach(k=>{ const v=patch[k];
+    if(v===null||v===""||v===undefined||(Array.isArray(v)&&!v.length)) return; obj[k]=v; }); };
+
+  if(t==="inquiries"){
+    list.forEach(r=>{
+      const company=String(r.company||"").trim();
+      if(!company){ skipped++; return; }
+      const ex=impFindDup(t,r);
+      if(ex&&dm==="skip"){ skipped++; return; }
+      const p={company:company,contact:String(r.contact||"").trim(),industry:String(r.industry||"").trim(),
+        area:impNum(r.area),budget:impNum(r.budget),source:String(r.source||"").trim(),
+        stage:STAGES.indexOf(String(r.stage||"").trim())>=0?String(r.stage).trim():"新询盘",
+        expect:String(r.expect||"").trim(),next:String(r.next||"").trim(),
+        regions:String(r.regions||"").split(/[、,，\/\s|]+/).map(x=>x.trim()).filter(Boolean),
+        remark:String(r.remark||"").trim()};
+      if(ex&&dm==="update"){ mergeIn(ex,p); ex.updatedAt=Date.now(); updated++; }
+      else{ p.id=uid(); p.followups=[]; p.createdAt=Date.now(); p.updatedAt=Date.now(); data.push(p); added++; }
+    });
+    if(added||updated){ save(); fillSelectors(); renderAll(); }
+  }
+  else if(t==="deals"){
+    list.forEach(r=>{
+      const company=String(r.company||"").trim();
+      if(!company){ skipped++; return; }
+      const ex=impFindDup(t,r);
+      if(ex&&dm==="skip"){ skipped++; return; }
+      const ty=String(r.type||"").trim();
+      const p={company:company,project:String(r.project||"").trim(),district:String(r.district||"").trim(),
+        area:impNum(r.area),type:IMP_TYPE_MAP[ty.toLowerCase()]||ty,rent:String(r.rent||"").trim(),
+        industry:String(r.industry||"").trim(),floor:String(r.floor||"").trim(),note:String(r.note||"").trim()};
+      if(ex&&dm==="update"){ mergeIn(ex,p); updated++; }
+      else{ p.id=uid(); deals.push(p); added++; }
+    });
+    if(added||updated){ saveDeals(); fillDealIndustry(); renderDeals(); }
+  }
+  else{
+    list.forEach(r=>{
+      const name=String(r.name||"").trim();
+      if(!name){ skipped++; return; }
+      let d=String(r.district||"").trim()||"其他";
+      if(DISTRICTS.indexOf(d)<0){ DISTRICTS.push(d); if(!ALLBUILDINGS[d]) ALLBUILDINGS[d]=[]; newDist.push(d); }
+      const ex=(ALLBUILDINGS[d]||[]).find(b=>impN(b.name)===impN(name));
+      if(ex&&dm==="skip"){ skipped++; return; }
+      const rec={};
+      ["rent_quote","rent_floor","free","mgmt","grade","reno","status","area","ac","parking","metro","deposit","note"]
+        .forEach(k=>{ const v=String(r[k]||"").trim(); if(v) rec[k]=v; });
+      const sub=String(r.sub||"").trim();
+      if(ex&&dm==="update"){
+        if(sub) ex.sub=sub;
+        bedits[bkey(d,ex.name)]=Object.assign({},bedits[bkey(d,ex.name)]||{},rec); updated++;
+      } else if(ex){
+        ALLBUILDINGS[d].push(Object.assign({name:name+"（新）"},sub?{sub:sub}:{}));
+        bedits[bkey(d,name+"（新）")]=rec; added++;
+      } else {
+        ALLBUILDINGS[d].push(Object.assign({name:name},sub?{sub:sub}:{}));
+        if(Object.keys(rec).length) bedits[bkey(d,name)]=rec;
+        added++;
+      }
+    });
+    if(added||updated){
+      saveAllBuildings(); saveBEdits();
+      if(newDist.length){ saveDistricts(); renderRegionOptions(true); fillDistrictFilters(); }
+      renderBuildings();
+    }
+  }
+  impClose();
+  let m="导入完成：新增 "+added+" 条";
+  if(updated) m+="，更新 "+updated+" 条";
+  if(skipped) m+="，跳过 "+skipped+" 条（重复或缺少必填）";
+  if(newDist.length) m+="\n同时新建片区："+[...new Set(newDist)].join("、");
+  if(syncCfg.mode==="cloud") m+="\n已自动同步到团队云端。";
+  alert(m);
+}
+
 /* ---------- events ---------- */
 document.getElementById("btnAdd").onclick=()=>openForm();
 document.getElementById("btnCancel").onclick=closeForm;
@@ -1865,6 +2498,61 @@ document.getElementById("btnExportAllXls").onclick=()=>exportXls("all");
 document.getElementById("btnExportInquiries").onclick=()=>exportXls("inquiries");
 document.getElementById("btnExportDeals").onclick=()=>exportXls("deals");
 document.getElementById("btnExportBuildings").onclick=()=>exportXls("buildings");
+
+/* --- 导入事件 --- */
+document.getElementById("btnImpTop").onclick=()=>impOpen(["deals","buildings"].indexOf(section)>=0?section:"inquiries");
+document.getElementById("btnImpInq").onclick=()=>impOpen("inquiries");
+document.getElementById("btnImpDeal").onclick=()=>impOpen("deals");
+document.getElementById("btnImpBld").onclick=()=>impOpen("buildings");
+document.getElementById("imp_close").onclick=impClose;
+document.getElementById("imp_do").onclick=impDoImport;
+document.getElementById("maskImp").addEventListener("click",e=>{ if(e.target.id==="maskImp") impClose(); });
+document.getElementById("imp_target").onchange=()=>{
+  impState.target=document.getElementById("imp_target").value;
+  if(impState.mode==="free"&&(document.getElementById("impText").value||document.getElementById("impOcrText").value)) impParseFree();
+  else if(impState.sheets.length) impUseSheet(Number(document.getElementById("imp_sheet").value||0));
+  else impResetResult();
+};
+document.getElementById("imp_dupmode").onchange=()=>{ if(impState.recs.length) impRenderPrev(true); };
+document.getElementById("imp_sheet").onchange=e=>impUseSheet(Number(e.target.value||0));
+document.querySelectorAll("#impSrcSeg button").forEach(b=>{ b.onclick=()=>impSetSrc(b.dataset.src); });
+document.getElementById("impDrop").onclick=()=>document.getElementById("impFile").click();
+document.getElementById("impFile").onchange=e=>{ impHandleFile(e.target.files[0]); e.target.value=""; };
+["dragenter","dragover"].forEach(ev=>document.getElementById("impDrop").addEventListener(ev,e=>{ e.preventDefault(); e.currentTarget.classList.add("over"); }));
+["dragleave","drop"].forEach(ev=>document.getElementById("impDrop").addEventListener(ev,e=>{ e.preventDefault(); e.currentTarget.classList.remove("over"); }));
+document.getElementById("impDrop").addEventListener("drop",e=>{ const f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]; if(f) impHandleFile(f); });
+document.getElementById("impTextParse").onclick=impParseFree;
+document.getElementById("impOcrParse").onclick=impParseFree;
+document.getElementById("impImgDrop").onclick=()=>document.getElementById("impImgFile").click();
+document.getElementById("impImgFile").onchange=e=>{ impHandleImage(e.target.files[0]); e.target.value=""; };
+["dragenter","dragover"].forEach(ev=>document.getElementById("impImgDrop").addEventListener(ev,e=>{ e.preventDefault(); e.currentTarget.classList.add("over"); }));
+["dragleave","drop"].forEach(ev=>document.getElementById("impImgDrop").addEventListener(ev,e=>{ e.preventDefault(); e.currentTarget.classList.remove("over"); }));
+document.getElementById("impImgDrop").addEventListener("drop",e=>{ const f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]; if(f&&/^image\//.test(f.type)) impHandleImage(f); });
+document.addEventListener("paste",e=>{
+  const m=document.getElementById("maskImp");
+  if(!m.classList.contains("show")||impState.src!=="img") return;
+  const it=[...((e.clipboardData&&e.clipboardData.items)||[])].find(x=>/^image\//.test(x.type));
+  if(it){ e.preventDefault(); impHandleImage(it.getAsFile()); }
+});
+document.getElementById("impPrevTable").addEventListener("change",e=>{
+  const c=e.target.closest(".impChk"); if(!c) return;
+  const r=impState.recs[Number(c.dataset.i)]; if(!r) return;
+  r._on=c.checked;
+  const on=impState.recs.filter(x=>x._on).length;
+  const b=document.getElementById("imp_do"); b.disabled=on===0; b.textContent="确认导入 "+on+" 条";
+});
+document.getElementById("impPrevTable").addEventListener("input",e=>{
+  const td=e.target.closest("td[contenteditable]"); if(!td) return;
+  const r=impState.recs[Number(td.dataset.i)]; if(r) r[td.dataset.k]=td.textContent.trim();
+});
+document.getElementById("impPrevTable").addEventListener("focusout",e=>{
+  const td=e.target.closest("td[contenteditable]"); if(!td) return;
+  const i=Number(td.dataset.i), r=impState.recs[i], tr=td.closest("tr"); if(!r||!tr) return;
+  r._dup=!!impFindDup(impState.target,r);
+  tr.classList.toggle("isdup",r._dup);
+  const tag=tr.querySelector(".imp-tag");
+  if(tag){ tag.className="imp-tag "+(r._dup?"tdup":"tnew"); tag.textContent=r._dup?"重复":"新增"; }
+});
 document.getElementById("btnImport").onclick=()=>document.getElementById("fileInput").click();
 document.getElementById("fileInput").onchange=e=>{ if(e.target.files[0]) importJSON(e.target.files[0]); e.target.value=""; };
 document.querySelectorAll("#f_regions input").forEach(c=>c.onchange=syncRegionLabels);
