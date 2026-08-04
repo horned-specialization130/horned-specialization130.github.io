@@ -318,6 +318,7 @@
     <nav class="main-nav" id="mainNav">
       <button data-section="inquiries" class="active">询盘管理</button>
       <button data-section="deals">成交台账</button>
+      <button data-section="customers">客户管理</button>
       <button data-section="buildings">楼盘库</button>
       <button data-section="maps">地图</button>
     </nav>
@@ -392,6 +393,26 @@
       </table>
     </div>
   </div>
+  <div id="customerSection" class="hidden">
+    <section class="stats" id="custStats"></section>
+    <div class="toolbar">
+      <input type="text" class="search" id="custSearch" placeholder="搜索客户公司 / 联系人 / 楼宇…" />
+      <select id="custRelo"><option value="">搬迁计划 全部</option><option value="是">有搬迁计划</option><option value="否">无搬迁计划</option></select>
+      <select id="custRef"><option value="">转介机会 全部</option><option value="有">有转介机会</option><option value="无">无转介机会</option></select>
+      <div class="spacer"></div>
+      <button class="btn-ghost" id="btnImpCust">导入客户</button>
+      <button class="btn-ghost" id="btnExportCustomers">导出客户Excel</button>
+      <button class="btn-primary" id="btnAddCustomer">+ 新增客户</button>
+    </div>
+    <div class="table-wrap" id="custTableWrap">
+      <table class="data-table" id="custTable">
+        <thead><tr>
+          <th>拜访人</th><th>拜访日期</th><th>客户公司</th><th>联系人</th><th>楼宇</th><th>面积(㎡)</th><th>租金/月</th><th>管理费/月</th><th>到期</th><th>痛点</th><th>搬迁计划</th><th>转介</th><th>目标地段</th><th>需求面积</th><th>预算</th><th>备注</th><th></th>
+        </tr></thead>
+        <tbody id="custBody"></tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 <div class="mask" id="maskImp">
@@ -406,6 +427,7 @@
           <option value="inquiries">询盘管理</option>
           <option value="deals">成交台账</option>
           <option value="buildings">楼盘库</option>
+          <option value="customers">客户管理</option>
         </select>
       </div>
       <div class="form-row" style="min-width:170px;margin:0">
@@ -512,6 +534,49 @@
       <button class="btn-ghost" id="deal_close">取消</button>
       <button class="btn-ghost" id="deal_delete" style="display:none;color:#A32D2D">删除</button>
       <button class="btn-primary" id="deal_save">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="mask" id="maskCustomer">
+  <div class="modal" style="max-width:680px">
+    <h2 id="custTitle">新增客户拜访</h2>
+    <div class="grid2">
+      <div class="form-row"><label>拜访人</label><input type="text" id="c_visitor" placeholder="如：Leona, Kyle" /></div>
+      <div class="form-row"><label>拜访日期</label><input type="text" id="c_date" placeholder="如：2026年7月21日" /></div>
+    </div>
+    <div class="grid2">
+      <div class="form-row"><label>客户公司名</label><input type="text" id="c_company" placeholder="如：广东省宝全新能源有限公司" /></div>
+      <div class="form-row"><label>联系人</label><input type="text" id="c_contact" placeholder="如：邓先生" /></div>
+    </div>
+    <div class="grid2">
+      <div class="form-row"><label>楼宇</label><input type="text" id="c_building" placeholder="如：乐天智谷" /></div>
+      <div class="form-row"><label>面积(㎡)</label><input type="number" id="c_area" placeholder="如 200" /></div>
+    </div>
+    <div class="grid2">
+      <div class="form-row"><label>租金（元/月）</label><input type="text" id="c_rent" placeholder="如 62" /></div>
+      <div class="form-row"><label>管理费（元/月）</label><input type="text" id="c_fee" placeholder="如 8" /></div>
+    </div>
+    <div class="grid2">
+      <div class="form-row"><label>到期时间</label><input type="text" id="c_expiry" placeholder="如：2028年1月1日" /></div>
+      <div class="form-row"><label>目标搬迁地段</label><input type="text" id="c_targetArea" placeholder="如：珠江新城" /></div>
+    </div>
+    <div class="grid2">
+      <div class="form-row"><label>是否短期3-6个月有搬迁计划</label>
+        <select id="c_relocate"><option value="">请选择</option><option value="是">是</option><option value="否">否</option></select></div>
+      <div class="form-row"><label>有无转介机会</label>
+        <select id="c_referral"><option value="">请选择</option><option value="有">有</option><option value="无">无</option></select></div>
+    </div>
+    <div class="grid2">
+      <div class="form-row"><label>需求面积</label><input type="text" id="c_needArea" placeholder="如：500㎡" /></div>
+      <div class="form-row"><label>预算范围</label><input type="text" id="c_budget" placeholder="如：3000-5000万" /></div>
+    </div>
+    <div class="form-row"><label>使用痛点</label><input type="text" id="c_pain" placeholder="如：自用 / 楼层太高" /></div>
+    <div class="form-row"><label>备注</label><input type="text" id="c_remark" placeholder="补充信息…" /></div>
+    <div class="row end">
+      <button class="btn-ghost" id="cust_close">取消</button>
+      <button class="btn-ghost" id="cust_delete" style="display:none;color:#A32D2D">删除</button>
+      <button class="btn-primary" id="cust_save">保存</button>
     </div>
   </div>
 </div>
@@ -925,7 +990,7 @@ function sbClient(){
   if(!_sb){ try{ _sb=window.supabase.createClient(normalizeUrl(syncCfg.url),syncCfg.anonKey); }catch(e){ _sb=null; setSyncStatus("error",e&&e.message?e.message:String(e)); } }
   return _sb;
 }
-function aggregate(){ return {data:data,bedits:bedits,ALLBUILDINGS:ALLBUILDINGS,DISTRICTS:DISTRICTS,deals:deals}; }
+function aggregate(){ return {data:data,bedits:bedits,ALLBUILDINGS:ALLBUILDINGS,DISTRICTS:DISTRICTS,deals:deals,customers:customers}; }
 function applySnapshot(s){
   if(!s) return;
   if(Array.isArray(s.data)) data=s.data;
@@ -933,11 +998,13 @@ function applySnapshot(s){
   if(s.ALLBUILDINGS&&typeof s.ALLBUILDINGS==="object") ALLBUILDINGS=s.ALLBUILDINGS;
   if(Array.isArray(s.DISTRICTS)&&s.DISTRICTS.length) DISTRICTS=s.DISTRICTS;
   if(Array.isArray(s.deals)) deals=s.deals;
+  if(Array.isArray(s.customers)) customers=s.customers;
   try{localStorage.setItem(STORAGE_KEY,JSON.stringify(data));}catch(e){}
   try{localStorage.setItem(BEDIT_KEY,JSON.stringify(bedits));}catch(e){}
   try{localStorage.setItem(BALL_KEY,JSON.stringify(ALLBUILDINGS));}catch(e){}
   try{localStorage.setItem(DIST_KEY,JSON.stringify(DISTRICTS));}catch(e){}
   try{localStorage.setItem(DEALS_KEY,JSON.stringify(deals));}catch(e){}
+  try{localStorage.setItem(CUST_KEY,JSON.stringify(customers));}catch(e){}
 }
 function scheduleSync(){
   if(_booting) return;
@@ -989,7 +1056,7 @@ function subscribeRemote(){
      .on("postgres_changes",{event:"UPDATE",schema:"public",table:"workspace",filter:"key=eq."+syncCfg.spaceKey},()=>{
         pullSnapshot((row)=>{
           if(confirm("团队空间数据已被同事更新。\n点「确定」用云端最新版本覆盖本地；点「取消」保留本地并推回云端。")){
-            applySnapshot(row.data); _lastVersion=row.version; _dirty=false; fillSelectors(); renderRegionOptions(); fillDistrictFilters(); renderAll(); renderBuildings();
+            applySnapshot(row.data); _lastVersion=row.version; _dirty=false; fillSelectors(); renderRegionOptions(); fillDistrictFilters(); renderAll(); renderBuildings(); renderCustomers();
           } else { pushSnapshot(true); }
         });
      })
@@ -1063,7 +1130,7 @@ function doPull(){
   if(syncCfg.mode!=="cloud"){alert("当前为本地模式");return;}
   pullSnapshot((row)=>{
     if(confirm("云端已有更新。\n点「确定」用云端覆盖本地；点「取消」保留本地并推回云端。")){
-      applySnapshot(row.data); _lastVersion=row.version; _dirty=false; fillSelectors(); renderRegionOptions(); fillDistrictFilters(); renderAll(); renderBuildings(); document.getElementById("syncText2").textContent="已拉取云端";
+      applySnapshot(row.data); _lastVersion=row.version; _dirty=false; fillSelectors(); renderRegionOptions(); fillDistrictFilters(); renderAll(); renderBuildings(); renderCustomers(); document.getElementById("syncText2").textContent="已拉取云端";
     } else { pushSnapshot(true); document.getElementById("syncText2").textContent="已推回本地"; }
   });
 }
@@ -1975,6 +2042,7 @@ function exportXls(which){
   if(which==="inquiries"||which==="all") sheets.push({name:"询盘管理",headers:INQ_HEADERS,rows:inquiryRows()});
   if(which==="deals"||which==="all") sheets.push({name:"成交台账",headers:DEAL_HEADERS,rows:dealRows()});
   if(which==="buildings"||which==="all") sheets.push({name:"楼盘库",headers:B_HEADERS,rows:buildingRows()});
+  if(which==="customers"||which==="all") sheets.push({name:"客户管理",headers:CUST_HEADERS,rows:custRows()});
   if(!sheets.length) return;
   const fn=(which==="all"?"工作台全量_":"")+ts+".xls";
   xlsDownload(fn,sheets);
@@ -2029,6 +2097,24 @@ const IMP_DEFS={
     {k:"metro",label:"地铁",alias:["地铁","交通","地铁交通"]},
     {k:"deposit",label:"押金",alias:["押金","保证金"]},
     {k:"note",label:"备注",alias:["备注","说明","备注信息"]}
+  ]},
+  customers:{label:"客户管理",fields:[
+    {k:"visitor",label:"拜访人",alias:["拜访人","拜访人员","销售","跟进人","顾问","跟进顾问"]},
+    {k:"date",label:"拜访日期",alias:["拜访日期","日期","跟进日期","拜访时间"]},
+    {k:"company",label:"客户公司名",alias:["客户公司名","公司名","客户公司","企业","公司","客户名称","企业名称","客户"]},
+    {k:"contact",label:"联系人",alias:["联系人","对接人","联系人姓名","客户联系人"]},
+    {k:"building",label:"楼宇",alias:["楼宇","楼盘","大厦","项目","物业","楼盘名称"]},
+    {k:"area",label:"面积",alias:["面积","面积㎡","面积(㎡)","建筑面积","面积（㎡）"]},
+    {k:"rent",label:"租金（元/月）",alias:["租金（元/月）","租金","月租金","租金元/月","月租","租金/月"]},
+    {k:"fee",label:"管理费（元/月）",alias:["管理费（元/月）","管理费","物管费","管理费元/月"]},
+    {k:"expiry",label:"到期时间",alias:["到期时间","到期","租约到期","合同到期","租赁到期"]},
+    {k:"pain",label:"使用痛点",alias:["使用痛点","痛点","痛点描述"]},
+    {k:"relocate",label:"是否短期3-6个月有搬迁计划",alias:["是否短期3-6个月有搬迁计划","搬迁计划","短期搬迁","3-6个月搬迁计划"]},
+    {k:"referral",label:"有无转介机会",alias:["有无转介机会","转介机会","转介绍","转介"]},
+    {k:"targetArea",label:"目标搬迁地段",alias:["目标搬迁地段","目标地段","目标区域","搬迁地段","意向地段"]},
+    {k:"needArea",label:"需求面积",alias:["需求面积","需求㎡","需要面积","需求面积㎡"]},
+    {k:"budget",label:"预算范围",alias:["预算范围","预算","预算区间"]},
+    {k:"remark",label:"备注",alias:["备注","说明","备注信息"]}
   ]}
 };
 
@@ -2281,6 +2367,13 @@ function impParseLine(target,line){
     if(target==="inquiries"&&!o.regions&&IMP_REGIONS.indexOf(t)>=0){ o.regions=t; continue; }
     if(target==="inquiries"&&!o.contact&&/^1[3-9]\d{9}$/.test(t)){ o.contact=t; continue; }
     if(target==="inquiries"&&!o.stage&&STAGES.indexOf(t)>=0){ o.stage=t; continue; }
+    if(target==="customers"){
+      if(!o.contact&&/^1[3-9]\d{9}$/.test(t)){ o.contact=t; continue; }
+      if(!o.building){ const hit=impFindBuilding(t); if(hit){ o.building=hit.name; continue; } }
+      if(!o.relocate&&/(搬迁|迁址|搬家|换址)/.test(t)){ o.relocate="是"; t=t.replace(/(搬迁|迁址|搬家|换址)/g,"").trim(); if(!t) continue; }
+      if(!o.referral&&/(转介|转介绍|介绍客户|老带新|裂变)/.test(t)){ o.referral="有"; t=t.replace(/(转介|转介绍|介绍客户|老带新|裂变)/g,"").trim(); if(!t) continue; }
+      if(!o.budget){ const bm=/(\d+(?:\.\d+)?)\s*(万|万元|w|W|k|K)/.exec(t); if(bm){ o.budget=bm[0].replace(/\s+/g,""); t=t.replace(bm[0],"").trim(); if(!t) continue; } }
+    }
     const am=/(\d[\d,]*(?:\.\d+)?)\s*(sqm|㎡|m2|m²|平方米|平米|平)/i.exec(t);
     if(am&&!o.area){ o.area=am[1].replace(/,/g,""); t=t.replace(am[0],"").trim(); if(!t) continue; }
     if(target!=="buildings"){
@@ -2305,6 +2398,10 @@ function impParseLine(target,line){
     if(rest.length) o.name=rest.shift();
     o.note=[o.note,rest.join(" ")].filter(Boolean).join(" ");
     if(!o.district&&o.name){ const hit=impFindBuilding(o.name); if(hit) o.district=hit.district; }
+  } else if(target==="customers"){
+    if(rest.length) o.company=rest.shift();
+    if(rest.length&&!o.contact) o.contact=rest.shift();
+    o.remark=[o.remark,rest.join(" ")].filter(Boolean).join(" ");
   } else {
     if(rest.length) o.company=rest.shift();
     o.remark=[o.remark,rest.join(" ")].filter(Boolean).join(" ");
@@ -2379,6 +2476,12 @@ function impFindDup(target,rec){
     const p=impN(rec.project);
     return deals.find(d=>impN(d.company)===c&&impN(d.project)===p)||null;
   }
+  if(target==="customers"){
+    const c=impN(rec.company); if(!c) return null;
+    const a=customers.find(x=>impN(x.company)===c&&(impN(x.date)||"")===(impN(rec.date)||""));
+    if(a) return a;
+    return customers.find(x=>impN(x.company)===c)||null;
+  }
   const n=impN(rec.name); if(!n) return null;
   const d=(rec.district||"").trim();
   const list=d?(ALLBUILDINGS[d]||[]):[];
@@ -2446,7 +2549,7 @@ function impDoImport(){
     });
     if(added||updated){ saveDeals(); fillDealIndustry(); renderDeals(); }
   }
-  else{
+  else if(t==="buildings"){
     list.forEach(r=>{
       const name=String(r.name||"").trim();
       if(!name){ skipped++; return; }
@@ -2476,6 +2579,23 @@ function impDoImport(){
       renderBuildings();
     }
   }
+  else if(t==="customers"){
+    list.forEach(r=>{
+      const company=String(r.company||"").trim();
+      if(!company){ skipped++; return; }
+      const ex=impFindDup(t,r);
+      if(ex&&dm==="skip"){ skipped++; return; }
+      const p={visitor:String(r.visitor||"").trim(),date:String(r.date||"").trim(),company:company,
+        contact:String(r.contact||"").trim(),building:String(r.building||"").trim(),area:impNum(r.area),
+        rent:String(r.rent||"").trim(),fee:String(r.fee||"").trim(),expiry:String(r.expiry||"").trim(),
+        pain:String(r.pain||"").trim(),relocate:String(r.relocate||"").trim(),referral:String(r.referral||"").trim(),
+        targetArea:String(r.targetArea||"").trim(),needArea:String(r.needArea||"").trim(),budget:String(r.budget||"").trim(),
+        remark:String(r.remark||"").trim()};
+      if(ex&&dm==="update"){ mergeIn(ex,p); updated++; }
+      else{ p.id=uid(); customers.unshift(p); added++; }
+    });
+    if(added||updated){ saveCustomers(); renderCustomers(); }
+  }
   impClose();
   let m="导入完成：新增 "+added+" 条";
   if(updated) m+="，更新 "+updated+" 条";
@@ -2498,9 +2618,17 @@ document.getElementById("btnExportAllXls").onclick=()=>exportXls("all");
 document.getElementById("btnExportInquiries").onclick=()=>exportXls("inquiries");
 document.getElementById("btnExportDeals").onclick=()=>exportXls("deals");
 document.getElementById("btnExportBuildings").onclick=()=>exportXls("buildings");
+document.getElementById("btnExportCustomers").onclick=()=>exportXls("customers");
+document.getElementById("btnImpCust").onclick=()=>impOpen("customers");
+document.getElementById("btnAddCustomer").onclick=()=>openCustomer();
+document.getElementById("cust_close").onclick=closeCustomer;
+document.getElementById("maskCustomer").onclick=e=>{ if(e.target.id==="maskCustomer") closeCustomer(); };
+document.getElementById("cust_save").onclick=saveCustomer;
+document.getElementById("cust_delete").onclick=deleteCustomer;
+["custSearch","custRelo","custRef"].forEach(id=>document.getElementById(id).addEventListener("input",renderCustomers));
 
 /* --- 导入事件 --- */
-document.getElementById("btnImpTop").onclick=()=>impOpen(["deals","buildings"].indexOf(section)>=0?section:"inquiries");
+document.getElementById("btnImpTop").onclick=()=>impOpen(["deals","buildings","customers"].indexOf(section)>=0?section:"inquiries");
 document.getElementById("btnImpInq").onclick=()=>impOpen("inquiries");
 document.getElementById("btnImpDeal").onclick=()=>impOpen("deals");
 document.getElementById("btnImpBld").onclick=()=>impOpen("buildings");
@@ -2571,10 +2699,12 @@ document.getElementById("mainNav").querySelectorAll("button").forEach(b=>b.oncli
   document.getElementById("dealsSection").classList.toggle("hidden",section!=="deals");
   document.getElementById("buildingSection").classList.toggle("hidden",section!=="buildings");
   document.getElementById("mapSection").classList.toggle("hidden",section!=="maps");
+  document.getElementById("customerSection").classList.toggle("hidden",section!=="customers");
   document.getElementById("btnAdd").style.display = section==="inquiries"?"inline-block":"none";
   if(section==="deals") renderDeals();
   else if(section==="buildings") renderBuildings();
   else if(section==="maps") renderMaps();
+  else if(section==="customers") renderCustomers();
   else renderAll();
 });
 ["bSearch","bRegion"].forEach(id=>document.getElementById(id).addEventListener("input",renderBuildings));
@@ -2687,10 +2817,128 @@ function fillDealIndustry(){
   sel.innerHTML=`<option value="">全部行业</option>`+inds.map(i=>`<option${i===cur?" selected":""}>${esc(i)}</option>`).join("");
 }
 
+/* ---------- 客户管理（客户拜访登记）渲染与 CRUD ---------- */
+const CUST_KEY="songguo_customers_v1";
+let customers=[]; let editingCustId=null; let custSeeded=false;
+const SEED_CUSTOMERS=[
+  {visitor:"Leona, Kyle",date:"2026年7月21日",company:"广东省宝全新能源有限公司",contact:"邓先生",building:"乐天智谷",area:200,rent:62,fee:8,expiry:"",pain:"",relocate:"否",referral:"",targetArea:"",needArea:"",budget:"",remark:"2026年5月搬进，直接和业主租的，没有通过中介"},
+  {visitor:"Kyle, Steven",date:"2026年7月22日",company:"鸿腾电力销售/广东十建",contact:"陈总",building:"汇金中心CFC",area:2700,rent:"",fee:33,expiry:"",pain:"自用",relocate:"否",referral:"是",targetArea:"",needArea:"",budget:"3000-5000万",remark:"找寻可超贷（可超1000万左右）物业收购机会。"},
+  {visitor:"Steven",date:"2026年7月31日",company:"北京瀛和(广州)律师事务所",contact:"胡勤艳",building:"越秀金融大厦",area:2000,rent:"",fee:"",expiry:"2028年1月1日",pain:"",relocate:"否",referral:"",targetArea:"",needArea:"",budget:"",remark:""},
+  {visitor:"Steven",date:"2026年8月3日",company:"傅哥会所",contact:"",building:"",area:"",rent:"",fee:"",expiry:"",pain:"",relocate:"",referral:"",targetArea:"",needArea:"",budget:"",remark:"第一次考察喜来登行政酒廊，报价8万"},
+  {visitor:"Kyle",date:"2026年8月3日",company:"广州柏树林体育发展有限公司",contact:"郭总",building:"科学城绿地中央广场D座公寓自购一层1000平米用作高尔夫俱乐部",area:1000,rent:"",fee:"",expiry:"",pain:"",relocate:"",referral:"",targetArea:"",needArea:"",budget:"",remark:"老板住珠江新城，希望能帮他们在珠江新城写字楼群楼、商场租赁新点；需求需持续挖掘。"}
+];
+const CUST_HEADERS=["拜访人","拜访日期","客户公司名","联系人","楼宇","面积","租金（元/月）","管理费（元/月）","到期时间","使用痛点","是否短期3-6个月有搬迁计划","有无转介机会","目标搬迁地段","需求面积","预算范围","备注"];
+function custRows(){ return customers.map(c=>[c.visitor,c.date,c.company,c.contact,c.building,c.area,c.rent,c.fee,c.expiry,c.pain,c.relocate,c.referral,c.targetArea,c.needArea,c.budget,c.remark]); }
+function loadCustomers(){
+  try{ const r=localStorage.getItem(CUST_KEY); if(r){ customers=JSON.parse(r); return; } }catch(e){}
+  customers=SEED_CUSTOMERS.map(x=>Object.assign({id:uid(),updated:Date.now()},x));
+  custSeeded=true;
+  try{ localStorage.setItem(CUST_KEY,JSON.stringify(customers)); }catch(e){}
+}
+function saveCustomers(){ try{ localStorage.setItem(CUST_KEY,JSON.stringify(customers)); }catch(e){} scheduleSync(); }
+function renderCustomers(){
+  const fs=(document.getElementById("custSearch").value||"").trim().toLowerCase();
+  const fr=document.getElementById("custRelo").value;
+  const fref=document.getElementById("custRef").value;
+  let list=customers.filter(c=>{
+    if(fs&&(c.company||"").toLowerCase().indexOf(fs)<0&&(c.contact||"").toLowerCase().indexOf(fs)<0&&(c.building||"").toLowerCase().indexOf(fs)<0) return false;
+    if(fr&&(c.relocate||"")!==fr) return false;
+    if(fref&&(c.referral||"")!==fref) return false;
+    return true;
+  });
+  const total=list.length;
+  const reloN=list.filter(c=>(c.relocate||"")==="是").length;
+  const refN=list.filter(c=>(c.referral||"")==="有").length;
+  const needN=list.filter(c=>(c.needArea||"").trim()).length;
+  document.getElementById("custStats").innerHTML=
+    `<div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">拜访记录</div></div>`+
+    `<div class="stat-card"><div class="stat-num">${reloN}</div><div class="stat-label">短期搬迁意向</div></div>`+
+    `<div class="stat-card"><div class="stat-num">${refN}</div><div class="stat-label">转介机会</div></div>`+
+    `<div class="stat-card"><div class="stat-num">${needN}</div><div class="stat-label">有需求面积</div></div>`;
+  const tb=document.getElementById("custBody");
+  if(!total){ tb.innerHTML='<tr><td colspan="17" style="text-align:center;color:#888;padding:30px 0">暂无客户拜访记录，点右上角「+ 新增客户」开始登记</td></tr>'; return; }
+  tb.innerHTML=list.map(c=>`<tr>
+    <td>${esc(c.visitor)||"-"}</td>
+    <td>${esc(c.date)||"-"}</td>
+    <td>${esc(c.company)||"-"}</td>
+    <td>${esc(c.contact)||"-"}</td>
+    <td>${esc(c.building)||"-"}</td>
+    <td>${(c.area||"")?Number(c.area).toLocaleString():"-"}</td>
+    <td>${esc(c.rent)||"-"}</td>
+    <td>${esc(c.fee)||"-"}</td>
+    <td>${esc(c.expiry)||"-"}</td>
+    <td>${esc(c.pain)||"-"}</td>
+    <td>${c.relocate?`<span class="chip ${c.relocate==="是"?"warn":""}">${esc(c.relocate)}</span>`:"-"}</td>
+    <td>${c.referral?`<span class="chip ${c.referral==="有"?"ok":""}">${esc(c.referral)}</span>`:"-"}</td>
+    <td>${esc(c.targetArea)||"-"}</td>
+    <td>${esc(c.needArea)||"-"}</td>
+    <td>${esc(c.budget)||"-"}</td>
+    <td>${esc(c.remark)||"-"}</td>
+    <td><button class="btn-ghost sm" onclick='openCustomer("${c.id}")'>编辑</button></td>
+  </tr>`).join("");
+}
+function openCustomer(id){
+  editingCustId=id||null;
+  const c=id?customers.find(x=>x.id===id):null;
+  document.getElementById("custTitle").textContent=c?"编辑客户拜访":"新增客户拜访";
+  document.getElementById("c_visitor").value=c?c.visitor:"";
+  document.getElementById("c_date").value=c?c.date:"";
+  document.getElementById("c_company").value=c?c.company:"";
+  document.getElementById("c_contact").value=c?c.contact:"";
+  document.getElementById("c_building").value=c?c.building:"";
+  document.getElementById("c_area").value=c?c.area:"";
+  document.getElementById("c_rent").value=c?c.rent:"";
+  document.getElementById("c_fee").value=c?c.fee:"";
+  document.getElementById("c_expiry").value=c?c.expiry:"";
+  document.getElementById("c_targetArea").value=c?c.targetArea:"";
+  document.getElementById("c_relocate").value=c?c.relocate:"";
+  document.getElementById("c_referral").value=c?c.referral:"";
+  document.getElementById("c_needArea").value=c?c.needArea:"";
+  document.getElementById("c_budget").value=c?c.budget:"";
+  document.getElementById("c_pain").value=c?c.pain:"";
+  document.getElementById("c_remark").value=c?c.remark:"";
+  document.getElementById("cust_delete").style.display=c?"inline-block":"none";
+  document.getElementById("maskCustomer").classList.add("show");
+}
+function closeCustomer(){ document.getElementById("maskCustomer").classList.remove("show"); editingCustId=null; }
+function saveCustomer(){
+  const rec={
+    visitor:document.getElementById("c_visitor").value.trim(),
+    date:document.getElementById("c_date").value.trim(),
+    company:document.getElementById("c_company").value.trim(),
+    contact:document.getElementById("c_contact").value.trim(),
+    building:document.getElementById("c_building").value.trim(),
+    area:document.getElementById("c_area").value?Number(document.getElementById("c_area").value):"",
+    rent:document.getElementById("c_rent").value.trim(),
+    fee:document.getElementById("c_fee").value.trim(),
+    expiry:document.getElementById("c_expiry").value.trim(),
+    targetArea:document.getElementById("c_targetArea").value.trim(),
+    relocate:document.getElementById("c_relocate").value,
+    referral:document.getElementById("c_referral").value,
+    needArea:document.getElementById("c_needArea").value.trim(),
+    budget:document.getElementById("c_budget").value.trim(),
+    pain:document.getElementById("c_pain").value.trim(),
+    remark:document.getElementById("c_remark").value.trim(),
+    updated:Date.now()
+  };
+  if(!rec.company){ alert("请填写客户公司名"); return; }
+  if(editingCustId){
+    const idx=customers.findIndex(x=>x.id===editingCustId);
+    if(idx>=0) customers[idx]=Object.assign({},customers[idx],rec);
+  } else { rec.id=uid(); customers.unshift(rec); }
+  saveCustomers(); renderCustomers(); closeCustomer();
+}
+function deleteCustomer(){
+  if(!editingCustId) return;
+  if(!confirm("确定删除这条客户拜访记录？")) return;
+  customers=customers.filter(c=>c.id!==editingCustId);
+  saveCustomers(); renderCustomers(); closeCustomer();
+}
+
 /* ---------- init ---------- */
 async function boot(){
-  _booting=true; loadSyncCfg();
-  load(); loadBEdits(); loadDistricts(); loadDeals();
+  _booting=true;   loadSyncCfg();
+  load(); loadBEdits(); loadDistricts(); loadDeals(); loadCustomers();
   if(syncCfg.mode==="cloud" && cfgComplete()){
     setSyncStatus("connecting");
     await waitSupabaseLib(8000);           // 等 CDN 加载，避免误判为「本地/待配置」
@@ -2705,6 +2953,7 @@ async function boot(){
   _booting=false;
   // 云端数据拉取完成后再补增量记录，确保新增能推回云端且不与远端重复
   if(applyDealPatches()>0){ renderDeals(); fillDealIndustry(); }
+  if(custSeeded && syncCfg.mode==="cloud" && cfgComplete() && sbClient()) scheduleSync();
   if(syncCfg.mode==="cloud" && cfgComplete() && sbClient()) subscribeRemote();
 }
 document.getElementById("btnSync").onclick=openSync;
